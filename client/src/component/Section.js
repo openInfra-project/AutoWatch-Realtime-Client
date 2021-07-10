@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react'
+import React from 'react'
 import './Section.scss'
 import socket from 'socket.io-client'
 
@@ -35,7 +35,7 @@ function Section() {
         offerToReceiveAudio:true,
         offerToReceiveVideo:true
     }
-    const io = socket();
+    const io = socket.connect("https://localhost:4000/");
     io.on('connect',()=> {
         io.emit('onCollabo',io.id)
     })
@@ -206,18 +206,22 @@ function Section() {
 
     //사용자에게 카메라에 엑세스 할수있는 권한을 요청
     //성공하면 mediaStream이 반환
+    const onClickStart = () => {
+        
+    }
     navigator.mediaDevices.getUserMedia(mediaStreamConstraints)
-    .then(gotLocalMediaStream).catch(handleLocalMediaStreamError)
+        .then(gotLocalMediaStream).catch(handleLocalMediaStreamError)
+    
     
     return (
         <>
             <h1>Realtime communication with WebRTC</h1>
             <video id="localVideo" autoPlay playsInline></video>
-            <video id="remoteVideo" autoplay playsInline></video>
+            <video id="remoteVideo" autoPlay playsInline></video>
 
 
             <div>
-                <button id="startButton">Start</button>
+                <button id="startButton" onClick={onClickStart}>Start</button>
                 <button id="callButton">Call</button>
                 <button id="hangupButton">Hang Up</button>
             </div>
