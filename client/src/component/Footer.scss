@@ -1,0 +1,35 @@
+.footer {
+    background-color: #4277b2;
+    display: flex;
+    align-items: center;
+    bottom: 0;
+    box-sizing: border-box;
+    position: fixed;
+    text-align: center;
+    white-space: nowrap;
+    width:100vw;
+    height: 4rem;
+}
+.menu {
+    width: 100%;
+    margin-left: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    .menu_icon {
+        width: 100%;
+        margin-left: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+    }
+    .icon {
+        width:32px;
+        height:32px;
+        cursor: pointer;
+        background-color: #4277b2;
+        :hover{
+            background-color: black;
+        }
+    }
+}
