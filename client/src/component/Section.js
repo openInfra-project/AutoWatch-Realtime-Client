@@ -1,8 +1,29 @@
-import React from 'react'
+import React ,{useEffect, useRef}from 'react'
 import './Section.scss'
 import socket from 'socket.io-client'
 
 function Section() {
+    const videolocalref = useRef(null)
+    useEffect(()=> {
+        const getUserMedia = async()=> {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia(mediaStreamConstraints).catch(handleLocalMediaStreamError)
+                videolocalref.current.srcObject = stream
+                   // localVideo.srcObject = mediaStream;
+                // localStream = mediaStream
+                sendMessage('got user media')
+                //initiator가 true이면 최초로 만든사람임
+                if(isInitiator) {
+                    maybeStart()
+                    
+                }
+            } catch(err) {
+                console.log(err)
+            }
+        }
+        getUserMedia()
+
+    },[])
     //미디어를 얻기 위해 지정할 수 있는 것들
     //오디오는 기본적으로 비활성화 되어있음
     const mediaStreamConstraints = {
@@ -35,12 +56,15 @@ function Section() {
         offerToReceiveAudio:true,
         offerToReceiveVideo:true
     }
-    const io = socket.connect("https://localhost:4000/");
+    //테스트용 ngrok 서버
+    const io = socket.connect("https://8f76a8f9fb3c.ngrok.io");
+    io.emit('request',"Temp room name")
     io.on('connect',()=> {
         io.emit('onCollabo',io.id)
     })
     io.on('collabo',(room)=> {
         io.emit('create or join',room)
+        console.log("room: ",room)
         console.log("Attempted to create or join room",room)
     })
     io.on('created',(room)=> {
@@ -54,8 +78,8 @@ function Section() {
         console.log("Another peer made a request to join room" + room)
         console.log("This peer is the initiator of room"+room+"!")
     })
-    io.on("joind",(room)=> {
-        console.log("joind"+room)
+    io.on("joined",(room)=> {
+        console.log('joined'+room)
         isChannelReady = true
     })
     io.on('log',(array=> {
@@ -86,9 +110,9 @@ function Section() {
         }
     })
     //srcObject 속성을 통해 미디어 요소에서 사용할 수 있다
-    function gotLocalMediaStream(mediaStream) {
-        localVideo.srcObject = mediaStream;
-        localStream = mediaStream
+    function gotLocalMediaStream() {
+        // localVideo.srcObject = mediaStream;
+        // localStream = mediaStream
         sendMessage('got user media')
         //initiator가 true이면 최초로 만든사람임
         if(isInitiator) {
@@ -99,8 +123,8 @@ function Section() {
     //createPeerconnection 함수로 peerconnection을 만들어주고
     //나의 peerconnection에는 localStream을 붙인다.
     function maybeStart() {
-        console.log('>>>>>>>maybeStart()',isStarted,localStream,isChannelReady)
-        if(isStarted && typeof localStream !=="undefined" && isChannelReady){
+        console.log('>>>>>>>maybeStart()',isStarted,isChannelReady)
+        if(!isStarted  && isChannelReady){
             console.log(">>>>>>>creating peer connection")
             createPeerConnection();
             pc.addStream(localStream)
@@ -207,16 +231,14 @@ function Section() {
     //사용자에게 카메라에 엑세스 할수있는 권한을 요청
     //성공하면 mediaStream이 반환
     const onClickStart = () => {
-        
+        //
     }
-    navigator.mediaDevices.getUserMedia(mediaStreamConstraints)
-        .then(gotLocalMediaStream).catch(handleLocalMediaStreamError)
     
     
     return (
         <>
             <h1>Realtime communication with WebRTC</h1>
-            <video id="localVideo" autoPlay playsInline></video>
+            <video id="localVideo" ref={videolocalref} autoPlay playsInline></video>
             <video id="remoteVideo" autoPlay playsInline></video>
 
 
