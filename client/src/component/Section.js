@@ -3,11 +3,11 @@ import './Section.scss'
 import socket from 'socket.io-client'
 
 function Section() {
+    const io = socket.connect("https://fa4c75997b9a.ngrok.io");
     // const videolocalref = useRef(null)
     // const videoremoteref = useRef(null)
     // let stream;
-    // //테스트용 ngrok 서버
-    // const io = socket.connect("https://7131882f0166.ngrok.io");
+  
     // useEffect(()=> {
     //     const getUserMedia = async()=> {
     //         try {
@@ -34,10 +34,10 @@ function Section() {
     // },[])
     // //미디어를 얻기 위해 지정할 수 있는 것들
     // //오디오는 기본적으로 비활성화 되어있음
-    // const mediaStreamConstraints = {
-    //     video: true,
-    //     audio:false,
-    // }
+    const mediaStreamConstraints = {
+        video: true,
+        audio:false,
+    }
     // //video태그를 가져온다
     // const localVideo = document.getElementById('localVideo')
     // const remoteVideo = document.getElementById('remoteVideo')
@@ -50,20 +50,20 @@ function Section() {
     // var isStarted = false;
     // //pcConfig에는 stun turn 서버를 적게되는데 rtc 중계를 끊어지는 걸 대비한
     // // 임시서버이다 https://gist.github.com/yetithefoot/7592580
-    // var pcConfig = {
-    //     'iceServers':[{
-    //         urls:'stun:stun.l.google.com:19302'
-    //     },
-    //     {
-    //         urls:"turn:numb.viagenie.ca",
-    //         credential:"muazkh",
-    //         username:"webrtc@live.com"
-    //     }
-    // ]}
-    // var sdpConstraints = {
-    //     offerToReceiveAudio:true,
-    //     offerToReceiveVideo:true
-    // }
+    var pcConfig = {
+        'iceServers':[{
+            urls:'stun:stun.l.google.com:19302'
+        },
+        {
+            urls:"turn:numb.viagenie.ca",
+            credential:"muazkh",
+            username:"webrtc@live.com"
+        }
+    ]}
+    var sdpConstraints = {
+        offerToReceiveAudio:true,
+        offerToReceiveVideo:true
+    }
     
     
     // // io.on('connect',()=> {
@@ -245,173 +245,132 @@ function Section() {
     // function handleLocalMediaStreamError(error) {
     //     console.log('navigator.getUserMedia error:',error)
     // }
-    let pc1Local;
-    let pc1Remote;
-    let pc2Local;
-    let pc2Remote;
-    const video1 = document.querySelector('video#video1');
-    const video2 = document.querySelector('video#video2');
-    const video3 = document.querySelector('video#video3');
+    //한개의 video element는 getUserMedia()로부터 스트리밍을 하고 , 나머지는 RTCPEerConnection
+    //을 통한 스트리밍
+    var isChannelReady = false;
+    var isInitiator = false;
+    var isStarted = false;
+    var localStream;
+    var remoteStream;
+    var pc;
 
+    const remoteVideo = document.querySelector('video#video2');
+    io.on('created',(room)=> {
+        console.log("created room" + room)
+        isInitiator = true
+    })
+    io.on("joined",(room)=> {
+        console.log('joined'+room)
+        isChannelReady = true;
+    })
     const offerOptions = {
         offerToReceiveAudio: 1,
         offerToReceiveVideo: 1
     };
 
-    function gotStream(stream) {
-        console.log('Received local stream');
-        video1.srcObject = stream;
-        window.localStream = stream;
-      }
+
+    var gotStream,gotremoteStream;
+    var videolocalref = useRef(null)
+    var videoremoteref = useRef(null)
+    let mql = null;
+    useEffect(()=> {
+        gotStream = async()=> {
+            try {
+                var stream = await navigator.mediaDevices.getUserMedia(mediaStreamConstraints)
+                .catch(e => console.log('getUserMedia() error: ', e));
+                //pc에 넣어주기 위한 변수
+                localStream = stream
+                //ref 를 통해 바로 화면에 보여줌
+                videolocalref.current.srcObject = stream
+                io.emit('create or join','TEMPROOM')
+          
+            } catch(err) {
+                console.log(err)
+            }
+        }
+        gotremoteStream = async() => {
+            var stream2 = await navigator.mediaDevices.getUserMedia(mediaStreamConstraints)
+            .catch(e=>console.log('retmoteStream 에러:',e))
+            remoteStream = stream2
+            videoremoteref.current.srcObject = stream2
+        }
+        
       
+    },[])  
     function start() {
         console.log('Requesting local stream');
-        navigator.mediaDevices
-            .getUserMedia({
-              audio: true,
-              video: true
-            })
-            .then(gotStream)
-            .catch(e => console.log('getUserMedia() error: ', e));
+        gotStream()
+        maybeStart()
+       
     }
-    function call() {
-        console.log('Starting calls');
-        const audioTracks = window.localStream.getAudioTracks();
-        const videoTracks = window.localStream.getVideoTracks();
-        if (audioTracks.length > 0) {
-          console.log(`Using audio device: ${audioTracks[0].label}`);
-        }
-        if (videoTracks.length > 0) {
-          console.log(`Using video device: ${videoTracks[0].label}`);
-        }
-        // Create an RTCPeerConnection via the polyfill.
-        const servers = null;
-        pc1Local = new RTCPeerConnection(servers);
-        pc1Remote = new RTCPeerConnection(servers);
-        pc1Remote.ontrack = gotRemoteStream1;
-        pc1Local.onicecandidate = iceCallback1Local;
-        pc1Remote.onicecandidate = iceCallback1Remote;
-        console.log('pc1: created local and remote peer connection objects');
-      
-        pc2Local = new RTCPeerConnection(servers);
-        pc2Remote = new RTCPeerConnection(servers);
-        pc2Remote.ontrack = gotRemoteStream2;
-        pc2Local.onicecandidate = iceCallback2Local;
-        pc2Remote.onicecandidate = iceCallback2Remote;
-        console.log('pc2: created local and remote peer connection objects');
-      
-        window.localStream.getTracks().forEach(track => pc1Local.addTrack(track, window.localStream));
-        console.log('Adding local stream to pc1Local');
-        pc1Local
-            .createOffer(offerOptions)
-            .then(gotDescription1Local, onCreateSessionDescriptionError);
-      
-        window.localStream.getTracks().forEach(track => pc2Local.addTrack(track, window.localStream));
-        console.log('Adding local stream to pc2Local');
-        pc2Local.createOffer(offerOptions)
-            .then(gotDescription2Local, onCreateSessionDescriptionError);
+    function maybeStart() {
+        console.log('-------------pc관련 작업-----------------')
+        createPeerConnection()
+        pc.onaddstream(localStream)
+        isStarted = true
+        doCall()
+
     }
-    function onCreateSessionDescriptionError(error) {
-        console.log(`Failed to create session description: ${error.toString()}`);
-      }
-      
-      function gotDescription1Local(desc) {
-        pc1Local.setLocalDescription(desc);
-        console.log(`Offer from pc1Local\n${desc.sdp}`);
-        pc1Remote.setRemoteDescription(desc);
-        // Since the 'remote' side has no media stream we need
-        // to pass in the right constraints in order for it to
-        // accept the incoming offer of audio and video.
-        pc1Remote.createAnswer().then(gotDescription1Remote, onCreateSessionDescriptionError);
-      }
-      
-      function gotDescription1Remote(desc) {
-        pc1Remote.setLocalDescription(desc);
-        console.log(`Answer from pc1Remote\n${desc.sdp}`);
-        pc1Local.setRemoteDescription(desc);
-      }
-      
-      function gotDescription2Local(desc) {
-        pc2Local.setLocalDescription(desc);
-        console.log(`Offer from pc2Local\n${desc.sdp}`);
-        pc2Remote.setRemoteDescription(desc);
-        // Since the 'remote' side has no media stream we need
-        // to pass in the right constraints in order for it to
-        // accept the incoming offer of audio and video.
-        pc2Remote.createAnswer().then(gotDescription2Remote, onCreateSessionDescriptionError);
-      }
-      
-      function gotDescription2Remote(desc) {
-        pc2Remote.setLocalDescription(desc);
-        console.log(`Answer from pc2Remote\n${desc.sdp}`);
-        pc2Local.setRemoteDescription(desc);
-      }
-      
-      function hangup() {
-        console.log('Ending calls');
-        pc1Local.close();
-        pc1Remote.close();
-        pc2Local.close();
-        pc2Remote.close();
-        pc1Local = pc1Remote = null;
-        pc2Local = pc2Remote = null;
-      }
-      
-      function gotRemoteStream1(e) {
-        if (video2.srcObject !== e.streams[0]) {
-          video2.srcObject = e.streams[0];
-          console.log('pc1: received remote stream');
+    function createPeerConnection() {
+        try {
+          pc = new RTCPeerConnection(null);
+          pc.onicecandidate = handleIceCandidate;
+          pc.onaddstream = handleRemoteStreamAdded;
+          pc.onremovestream = handleRemoteStreamRemoved;
+          console.log('Created RTCPeerConnnection');
+        } catch (e) {
+          console.log('Failed to create PeerConnection, exception: ' + e.message);
+          alert('Cannot create RTCPeerConnection object.');
+          return;
         }
+    }
+    function doCall() {
+        console.log('Sending offer to peer');
+        pc.createOffer(setLocalAndSendMessage, handleCreateOfferError);
+    }
+    function handleCreateOfferError(event) {
+        console.log('createOffer() error: ', event);
       }
-      
-      function gotRemoteStream2(e) {
-        if (video3.srcObject !== e.streams[0]) {
-          video3.srcObject = e.streams[0];
-          console.log('pc2: received remote stream');
+    function setLocalAndSendMessage(sessionDescription) {
+        pc.setLocalDescription(sessionDescription);
+        console.log('setLocalAndSendMessage sending message', sessionDescription);
+        sendMessage(sessionDescription);
+    }
+    function handleIceCandidate(event) {
+        console.log('icecandidate event: ', event);
+        if (event.candidate) {
+          sendMessage({
+            type: 'candidate',
+            label: event.candidate.sdpMLineIndex,
+            id: event.candidate.sdpMid,
+            candidate: event.candidate.candidate
+          });
+        } else {
+          console.log('End of candidates.');
         }
-      }
-      
-      function iceCallback1Local(event) {
-        handleCandidate(event.candidate, pc1Remote, 'pc1: ', 'local');
-      }
-      
-      function iceCallback1Remote(event) {
-        handleCandidate(event.candidate, pc1Local, 'pc1: ', 'remote');
-      }
-      
-      function iceCallback2Local(event) {
-        handleCandidate(event.candidate, pc2Remote, 'pc2: ', 'local');
-      }
-      
-      function iceCallback2Remote(event) {
-        handleCandidate(event.candidate, pc2Local, 'pc2: ', 'remote');
-      }
-      
-      function handleCandidate(candidate, dest, prefix, type) {
-        dest.addIceCandidate(candidate)
-            .then(onAddIceCandidateSuccess, onAddIceCandidateError);
-        console.log(`${prefix}New ${type} ICE candidate: ${candidate ? candidate.candidate : '(null)'}`);
-      }
-      
-      function onAddIceCandidateSuccess() {
-        console.log('AddIceCandidate success.');
-      }
-      
-      function onAddIceCandidateError(error) {
-        console.log(`Failed to add ICE candidate: ${error.toString()}`);
+    }
+    function handleRemoteStreamAdded(event) {
+        console.log('Remote stream added.');
+        gotremoteStream()
+    }
+    function handleRemoteStreamRemoved(event) {
+        console.log('Remote stream removed. Event: ', event);
+    }
+    function sendMessage(message) {
+        console.log('Client sending message: ', message);
+        io.emit('message', message);
       }
     
     return (
         <>
             <h1>Realtime communication with WebRTC</h1>
-            <video id="video1" playsinline autoplay muted></video>
-            <video id="video2" playsinline autoplay></video>
-            <video id="video3" playsinline autoplay></video>
+            <video id="video1" ref={videolocalref} playsInline autoPlay muted></video>
+            <video id="video2" ref={videoremoteref} playsInline autoPlay></video>
+            <video id="video3" playsInline autoPlay></video>
 
             <div>
                 <button id="startButton" onClick={start}  >Start</button>
-                <button id="callButton"  onClick={call}>Call</button>
-                <button id="hangupButton" onClick={hangup}>Hang Up</button>
+              
             </div>
          
         </>

@@ -8,7 +8,7 @@ function Home() {
         <>
             <Header/>
             <Section/>
-            <Footer/>
+            {/* <Footer/> */}
         </>
     )
 }
