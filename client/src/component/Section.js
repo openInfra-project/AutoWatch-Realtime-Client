@@ -2,8 +2,10 @@ import React ,{useCallback, useEffect, useRef,useState}from 'react'
 import './Section.scss'
 import socket from 'socket.io-client'
 
+
 function Section() {
-    const io = socket.connect("https://fa4c75997b9a.ngrok.io");
+    const io = socket.connect("https://22d52eda84e2.ngrok.io");
+    var roomname = "TEMPROOM"
     // const videolocalref = useRef(null)
     // const videoremoteref = useRef(null)
     // let stream;
@@ -251,10 +253,12 @@ function Section() {
     var isInitiator = false;
     var isStarted = false;
     var localStream;
+    var turnReady;
     var remoteStream;
     var pc;
-
-    const remoteVideo = document.querySelector('video#video2');
+    const [isCall,setIsCall] = useState(false)
+    io.emit('request',roomname)
+    
     io.on('created',(room)=> {
         console.log("created room" + room)
         isInitiator = true
@@ -269,51 +273,105 @@ function Section() {
     };
 
 
-    var gotStream,gotremoteStream;
+    // let gotStream,gotremoteStream;
     var videolocalref = useRef(null)
     var videoremoteref = useRef(null)
-    let mql = null;
-    useEffect(()=> {
-        gotStream = async()=> {
-            try {
-                var stream = await navigator.mediaDevices.getUserMedia(mediaStreamConstraints)
-                .catch(e => console.log('getUserMedia() error: ', e));
-                //pc에 넣어주기 위한 변수
-                localStream = stream
-                //ref 를 통해 바로 화면에 보여줌
-                videolocalref.current.srcObject = stream
-                io.emit('create or join','TEMPROOM')
-          
-            } catch(err) {
-                console.log(err)
-            }
+    var gotStream,gotremoteStream;
+    gotStream = async()=> {
+        try {
+            var stream = await navigator.mediaDevices.getUserMedia(mediaStreamConstraints)
+            .catch(e => console.log('getUserMedia() error: ', e));
+            //pc에 넣어주기 위한 변수
+            localStream = stream
+            //ref 를 통해 바로 화면에 보여줌
+            videolocalref.current.srcObject = stream
+            io.emit('create or join',roomname)
+        
+        } catch(err) {
+            console.log(err)
         }
-        gotremoteStream = async() => {
+    }
+    gotremoteStream = async() => {
+        try{
             var stream2 = await navigator.mediaDevices.getUserMedia(mediaStreamConstraints)
             .catch(e=>console.log('retmoteStream 에러:',e))
             remoteStream = stream2
             videoremoteref.current.srcObject = stream2
+            io.emit('create or join','TEMPROOM')
+        }catch(err) {
+            console.log(err)
         }
         
+    }
+        
       
-    },[])  
     function start() {
         console.log('Requesting local stream');
         gotStream()
         maybeStart()
        
     }
+    function call() {
+        setIsCall(!isCall)
+        if(isCall){
+            createPeerConnection()
+            pc.onaddstream(remoteStream)
+            gotremoteStream()
+            doCall()
+        }
+    }
+
+    function hangup() {
+        console.log('Hanging up.');
+        pc.close()
+        pc = null
+    }
     function maybeStart() {
         console.log('-------------pc관련 작업-----------------')
-        createPeerConnection()
-        pc.onaddstream(localStream)
         isStarted = true
-        doCall()
-
+        
     }
+    function doAnswer() {
+        console.log('Sending answer to peer.');
+        pc.createAnswer().then(
+          setLocalAndSendMessage,
+          onCreateSessionDescriptionError
+        );
+      }
+    function onCreateSessionDescriptionError(error) {
+       
+    }
+    if (window.location.hostname !== 'localhost') {
+        requestTurn(
+          'https://computeengineondemand.appspot.com/turn?username=41784574&key=4080218913'
+        );
+    }
+    io.on('message', function(message) {
+        console.log('Client received message:', message);
+        if (message === 'got user media') {
+          maybeStart();
+        } else if (message.type === 'offer') {
+          if (!isInitiator && !isStarted) {
+            maybeStart();
+          }
+          pc.setRemoteDescription(new RTCSessionDescription(message));
+          doAnswer();
+        } else if (message.type === 'answer' && isStarted) {
+          pc.setRemoteDescription(new RTCSessionDescription(message));
+        } else if (message.type === 'candidate' && isStarted) {
+          var candidate = new RTCIceCandidate({
+            sdpMLineIndex: message.label,
+            candidate: message.candidate
+          });
+          pc.addIceCandidate(candidate);
+        } else if (message === 'bye' && isStarted) {
+          handleRemoteHangup();
+        }
+      });
+      
     function createPeerConnection() {
         try {
-          pc = new RTCPeerConnection(null);
+          pc = new RTCPeerConnection(pcConfig);
           pc.onicecandidate = handleIceCandidate;
           pc.onaddstream = handleRemoteStreamAdded;
           pc.onremovestream = handleRemoteStreamRemoved;
@@ -351,16 +409,52 @@ function Section() {
     }
     function handleRemoteStreamAdded(event) {
         console.log('Remote stream added.');
-        gotremoteStream()
     }
     function handleRemoteStreamRemoved(event) {
         console.log('Remote stream removed. Event: ', event);
     }
+    function handleRemoteHangup() {
+        console.log('Session terminated.');
+        stop();
+        isInitiator = false;
+      }
+      function stop() {
+        isStarted = false;
+        pc.close();
+        pc = null;
+      }
     function sendMessage(message) {
         console.log('Client sending message: ', message);
         io.emit('message', message);
+    }
+    function requestTurn(turnURL) {
+        var turnExists = false;
+        for (var i in pcConfig.iceServers) {
+          if (pcConfig.iceServers[i].urls.substr(0, 5) === 'turn:') {
+            turnExists = true;
+            turnReady = true;
+            break;
+          }
+        }
+        if (!turnExists) {
+          console.log('Getting TURN server from ', turnURL);
+          // No TURN server. Get one from computeengineondemand.appspot.com:
+          var xhr = new XMLHttpRequest();
+          xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+              var turnServer = JSON.parse(xhr.responseText);
+              console.log('Got TURN server: ', turnServer);
+              pcConfig.iceServers.push({
+                'urls': 'turn:' + turnServer.username + '@' + turnServer.turn,
+                'credential': turnServer.password
+              });
+              turnReady = true;
+            }
+          };
+          xhr.open('GET', turnURL, true);
+          xhr.send();
+        }
       }
-    
     return (
         <>
             <h1>Realtime communication with WebRTC</h1>
@@ -370,8 +464,11 @@ function Section() {
 
             <div>
                 <button id="startButton" onClick={start}  >Start</button>
-              
+                {/*클릭시 call변수가 false에서 true에서 바꿈 */}
+                <button id="callButton" onClick={call} >call</button>
+                <button id="hangupButton" onClick={hangup}>hangup</button>
             </div>
+            
          
         </>
     )
