@@ -1,55 +1,24 @@
 import React ,{useCallback, useEffect, useRef,useState}from 'react'
 import './Section.scss'
 import socket from 'socket.io-client'
+import Video from './Video/index'
+import { ThemeConsumer } from 'styled-components'
 
 
 function Section() {
-    const io = socket.connect("https://22d52eda84e2.ngrok.io");
-    var roomname = "TEMPROOM"
-    // const videolocalref = useRef(null)
-    // const videoremoteref = useRef(null)
-    // let stream;
-  
-    // useEffect(()=> {
-    //     const getUserMedia = async()=> {
-    //         try {
-    //             stream = await navigator.mediaDevices.getUserMedia(mediaStreamConstraints).catch(handleLocalMediaStreamError)
-    //             videolocalref.current.srcObject = stream
-    //             //    localVideo.srcObject = mediaStream;
-    //             // localStream = mediaStream
-    //             sendMessage('got user media')
-    //             //방을 join / create
-    //             io.emit('create or join','TEMPROOM')
-    //             console.log("몇번수행")
-    //             //initiator가 true이면 최초로 만든사람임
-    //             // if(isInitiator) {
-    //             //     maybeStart()
-                    
-    //             // }
-    //         } catch(err) {
-    //             console.log(err)
-    //         }
-    //     }
-        
-    //     getUserMedia()
-
-    // },[])
-    // //미디어를 얻기 위해 지정할 수 있는 것들
-    // //오디오는 기본적으로 비활성화 되어있음
+    const [socket,setSocket] = useState()
+    const [users,setUsers] = userState([])
+    let pcs = {}
+    
+    const io = socket.connect("http://localhost:4000");
+   
+    var videolocalref = useRef(null)
+    var videoremoteref = useRef(null)
     const mediaStreamConstraints = {
         video: true,
         audio:false,
     }
-    // //video태그를 가져온다
-    // const localVideo = document.getElementById('localVideo')
-    // const remoteVideo = document.getElementById('remoteVideo')
-    // let localStream;
-    // let localPeerConnection;
-    // var pc;
-    // var remoteStream
-    // var isChannelReady = false
-    // var isInitiator = false;
-    // var isStarted = false;
+  
     // //pcConfig에는 stun turn 서버를 적게되는데 rtc 중계를 끊어지는 걸 대비한
     // // 임시서버이다 https://gist.github.com/yetithefoot/7592580
     var pcConfig = {
@@ -62,414 +31,165 @@ function Section() {
             username:"webrtc@live.com"
         }
     ]}
-    var sdpConstraints = {
-        offerToReceiveAudio:true,
-        offerToReceiveVideo:true
-    }
-    
-    
-    // // io.on('connect',()=> {
-    // //     io.emit('collabo',io.id)
-    // // })
-    // // io.on('collabo',(room)=> {
-    // //     io.emit('create or join',room)
-    // //     console.log("room: ",room)
-    // //     console.log("Attempted to create or join room",room)
-    // // })
-    // io.on('created',(room)=> {
-    //     console.log("created room" + room)
-    //     isInitiator = true
-    // })
-    // // io.on('full',(room)=> {
-    // //     console.log('Room'+room+" is full")
-    // // })
-    // // io.on("join",(room)=> {
-    // //     console.log("Another peer made a request to join room" + room)
-    // //     console.log("This peer is the initiator of room"+room+"!")
-    // // })
-    // // io.on("joined",(room)=> {
-    // //     console.log('joined'+room)
-    // //     isChannelReady = true
-    // // })
-    // // io.on('log',(array=> {
-    // //     console.log.apply(console,array)
-    // // }))
-    // const sendMessage = (message)=> {
-    //     console.log("Client sending message",message)
-    //     io.emit('message',message)
-    
-    // }
-    // //클라이언트가 메세지를 받으면
-    // io.on("message",(message)=> {
-    //     console.log("client received message",message)
-    //     if(message ==="got user media"){
-    //         maybeStart()
-    //     }else if(message.type ==="offer") {
-    //         if(!isInitiator && !isStarted) {
-    //             maybeStart()
-    //         }
-    //         pc.setRemoteDescription(new RTCSessionDescription(message))
-    //         doAnswer()
-    //     }else if(message.type ==="answer" && isStarted) {
-    //         pc.setRemoteDescription(new RTCSessionDescription(message))
-
-    //     }else if(message.type==="candidate" && isStarted) {
-    //         var candidate = new RTCIceCandidate({
-    //             sqpMLineIndex : message.label,
-    //             candidate:message.candidate
-    //         })
-    //         pc.addCandidate(candidate)
-    //     }
-    // })
-    // //srcObject 속성을 통해 미디어 요소에서 사용할 수 있다
-    // // function gotLocalMediaStream() {
-    // //     // localVideo.srcObject = mediaStream;
-    // //     // localStream = mediaStream
-    // //     sendMessage('got user media')
-    // //     //initiator가 true이면 최초로 만든사람임
-    // //     if(isInitiator) {
-    // //         maybeStart()
-    // //     }
-    // // }
-    // //isstart는 최초 false이며 maybestart가 처음 실행되는 경우 true로 바뀐다
-    // //createPeerconnection 함수로 peerconnection을 만들어주고
-    // //나의 peerconnection에는 localStream을 붙인다.
-    // function maybeStart() {
-        
-    //     console.log('>>>>>>>maybeStart()',isStarted)
-    //     if(!isStarted) {
-    //         console.log(">>>>>>>creating peer connection")
-    //         createPeerConnection();
-    //         navigator.mediaDevices.getUserMedia(mediaStreamConstraints, function(remotestream) {
-    //             pc.addStream(remotestream);
-    //         });
-    //         isStarted = true;
-    //         isInitiator = true
-    //         console.log('isintiator',isInitiator)
-    //         //방을 만들었으면 docall함수를 통해 같은 방에 있는 client에게 rtc
-    //         //요청을 하게 된다
-    //         if(isInitiator) doCall()
-    //     }
-    // }
-    
-    // //pcConfig 값으로 pc(peerconnection)을 만들어 준다
-    // //pc에 icecandidate,addstreamremovestream 이벤트 추가
-    // //icecandidate는 서로 통신 채널을 확립하기 위한 방법 입니다
-    // //onaddstream은 remote 스트림이 들어오면 발생하는 이벤트이다.
-    // //RTCPeerConnection 인터페이스는 로컬 컴퓨터와 원격 피어 간의 
-    // //WebRTC 연결을 담당하며 원격 피어에 연결하기 위한 메서드들을 제공하고,
-    // // 연결을 유지하고 연결 상태를 모니터링하며 더 이상 연결이 필요하지 않을
-    // // 경우 연결을 종료합니다.
-    // function createPeerConnection() {
-    //     try {
-    //         pc = new RTCPeerConnection(pcConfig);
-    //         pc.onicecandidate = handleiceCandidate;
-    //         pc.onaddstream = handleRemoteStreamAdded;
-    //         pc.onremovestream = handleRemoteStreamRemoved;
-    //         console.log("created RTCPeerConnection")
-
-    //     }catch(e) {
-    //         console.log("failed to create PeerConnection, exception:"+e.message)
-    //         alert('Cannot create RTCPeerConnection object')
-    //         return;
-    //     }
-    // }
-    // //remoteStream이 들어오면, localvideo와 마찬가지로
-    // //remoteVideo에 remoteStream을 붙여준다
-    // function handleRemoteStreamAdded(event) {
-    //     console.log("Remote stream added.")
-    //     //event.stream은 MediaStream타입이여야 함
-    //     videoremoteref.current.srcObject = event
-    //     console.log(""+remoteStream)
-
-    // }
-    // //pc.createoffer을 통해 통신 요청을 하게 된다
-    // function doCall() {
-    //     console.log('Sending offer to peer')
-    //     pc.createOffer(setLocalAndSendMessage,handleCreateOfferError)
-    // }
-
-    // const handleiceCandidate =(event) => {
-    //     console.log('icecandidate event:',event)
-    //     if(event.candidate){
-    //         sendMessage({
-    //             type:'candidate',
-    //             label:event.candidate.sdpMLineIndex,
-    //             id:event.candidate.sdpMid,
-    //             candidate:event.candidate.candidate
-    //         })
-    //     }else {
-    //         console.log("End of candidates")
-    //     }
-    // }
-    // const handleCreateOfferError = (event) => {
-    //     console.log('createOffer() error',event)
-    // }
-    // const doAnswer = ()=> {
-    //     console.log('Sending answer to peer')
-    //     pc.createAnswer().then(function(answer){
-    //         return pc.setLocalDescription(answer)
-    //     }).then(
-    //         setLocalAndSendMessage
-    //     ).catch(onCreateSessionDescriptionError)
-    // }
-    // function setLocalAndSendMessage(sessionDescription) {
-    //     pc.setLocalDescription(sessionDescription)
-    //     console.log("setLocalAndSendMessage sending message",sessionDescription)
-    //     sendMessage(sessionDescription)
-    // }
-    // const onCreateSessionDescriptionError= (error) => {
-    //     console.log("failed to create session description"+ error.toString())
-    // }
-    // function handleRemoteStreamRemoved(event) {
-    //     console.log("Remote stream removed. Evnet:",event)
-    // }
-    // function hangup() {
-    //     console.log("Haning up")
-    //     stop()
-    //     sendMessage('bye')
-    // }
-    // function handleRemoteHangup() {
-    //     console.log("session terminated")
-    //     stop()
-    //     isInitiator = false
-    // }
-    // function stop() {
-    //     isStarted = false
-    //     pc.close()
-    //     pc = null
-    // }
-
-
-
-
-
-    // function handleLocalMediaStreamError(error) {
-    //     console.log('navigator.getUserMedia error:',error)
-    // }
-    //한개의 video element는 getUserMedia()로부터 스트리밍을 하고 , 나머지는 RTCPEerConnection
-    //을 통한 스트리밍
-    var isChannelReady = false;
-    var isInitiator = false;
-    var isStarted = false;
-    var localStream;
-    var turnReady;
-    var remoteStream;
-    var pc;
-    const [isCall,setIsCall] = useState(false)
-    io.emit('request',roomname)
-    
-    io.on('created',(room)=> {
-        console.log("created room" + room)
-        isInitiator = true
-    })
-    io.on("joined",(room)=> {
-        console.log('joined'+room)
-        isChannelReady = true;
-    })
-    const offerOptions = {
-        offerToReceiveAudio: 1,
-        offerToReceiveVideo: 1
-    };
-
-
-    // let gotStream,gotremoteStream;
-    var videolocalref = useRef(null)
-    var videoremoteref = useRef(null)
-    var gotStream,gotremoteStream;
-    gotStream = async()=> {
-        try {
-            var stream = await navigator.mediaDevices.getUserMedia(mediaStreamConstraints)
-            .catch(e => console.log('getUserMedia() error: ', e));
-            //pc에 넣어주기 위한 변수
-            localStream = stream
-            //ref 를 통해 바로 화면에 보여줌
-            videolocalref.current.srcObject = stream
-            io.emit('create or join',roomname)
-        
-        } catch(err) {
-            console.log(err)
-        }
-    }
-    gotremoteStream = async() => {
-        try{
-            var stream2 = await navigator.mediaDevices.getUserMedia(mediaStreamConstraints)
-            .catch(e=>console.log('retmoteStream 에러:',e))
-            remoteStream = stream2
-            videoremoteref.current.srcObject = stream2
-            io.emit('create or join','TEMPROOM')
-        }catch(err) {
-            console.log(err)
-        }
-        
-    }
-        
-      
-    function start() {
-        console.log('Requesting local stream');
-        gotStream()
-        maybeStart()
-       
-    }
-    function call() {
-        setIsCall(!isCall)
-        if(isCall){
-            createPeerConnection()
-            pc.onaddstream(remoteStream)
-            gotremoteStream()
-            doCall()
-        }
-    }
-
-    function hangup() {
-        console.log('Hanging up.');
-        pc.close()
-        pc = null
-    }
-    function maybeStart() {
-        console.log('-------------pc관련 작업-----------------')
-        isStarted = true
-        
-    }
-    function doAnswer() {
-        console.log('Sending answer to peer.');
-        pc.createAnswer().then(
-          setLocalAndSendMessage,
-          onCreateSessionDescriptionError
-        );
-      }
-    function onCreateSessionDescriptionError(error) {
-       
-    }
-    if (window.location.hostname !== 'localhost') {
-        requestTurn(
-          'https://computeengineondemand.appspot.com/turn?username=41784574&key=4080218913'
-        );
-    }
-    io.on('message', function(message) {
-        console.log('Client received message:', message);
-        if (message === 'got user media') {
-          maybeStart();
-        } else if (message.type === 'offer') {
-          if (!isInitiator && !isStarted) {
-            maybeStart();
-          }
-          pc.setRemoteDescription(new RTCSessionDescription(message));
-          doAnswer();
-        } else if (message.type === 'answer' && isStarted) {
-          pc.setRemoteDescription(new RTCSessionDescription(message));
-        } else if (message.type === 'candidate' && isStarted) {
-          var candidate = new RTCIceCandidate({
-            sdpMLineIndex: message.label,
-            candidate: message.candidate
-          });
-          pc.addIceCandidate(candidate);
-        } else if (message === 'bye' && isStarted) {
-          handleRemoteHangup();
-        }
-      });
-      
-    function createPeerConnection() {
-        try {
-          pc = new RTCPeerConnection(pcConfig);
-          pc.onicecandidate = handleIceCandidate;
-          pc.onaddstream = handleRemoteStreamAdded;
-          pc.onremovestream = handleRemoteStreamRemoved;
-          console.log('Created RTCPeerConnnection');
-        } catch (e) {
-          console.log('Failed to create PeerConnection, exception: ' + e.message);
-          alert('Cannot create RTCPeerConnection object.');
-          return;
-        }
-    }
-    function doCall() {
-        console.log('Sending offer to peer');
-        pc.createOffer(setLocalAndSendMessage, handleCreateOfferError);
-    }
-    function handleCreateOfferError(event) {
-        console.log('createOffer() error: ', event);
-      }
-    function setLocalAndSendMessage(sessionDescription) {
-        pc.setLocalDescription(sessionDescription);
-        console.log('setLocalAndSendMessage sending message', sessionDescription);
-        sendMessage(sessionDescription);
-    }
-    function handleIceCandidate(event) {
-        console.log('icecandidate event: ', event);
-        if (event.candidate) {
-          sendMessage({
-            type: 'candidate',
-            label: event.candidate.sdpMLineIndex,
-            id: event.candidate.sdpMid,
-            candidate: event.candidate.candidate
-          });
-        } else {
-          console.log('End of candidates.');
-        }
-    }
-    function handleRemoteStreamAdded(event) {
-        console.log('Remote stream added.');
-    }
-    function handleRemoteStreamRemoved(event) {
-        console.log('Remote stream removed. Event: ', event);
-    }
-    function handleRemoteHangup() {
-        console.log('Session terminated.');
-        stop();
-        isInitiator = false;
-      }
-      function stop() {
-        isStarted = false;
-        pc.close();
-        pc = null;
-      }
-    function sendMessage(message) {
-        console.log('Client sending message: ', message);
-        io.emit('message', message);
-    }
-    function requestTurn(turnURL) {
-        var turnExists = false;
-        for (var i in pcConfig.iceServers) {
-          if (pcConfig.iceServers[i].urls.substr(0, 5) === 'turn:') {
-            turnExists = true;
-            turnReady = true;
-            break;
-          }
-        }
-        if (!turnExists) {
-          console.log('Getting TURN server from ', turnURL);
-          // No TURN server. Get one from computeengineondemand.appspot.com:
-          var xhr = new XMLHttpRequest();
-          xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-              var turnServer = JSON.parse(xhr.responseText);
-              console.log('Got TURN server: ', turnServer);
-              pcConfig.iceServers.push({
-                'urls': 'turn:' + turnServer.username + '@' + turnServer.turn,
-                'credential': turnServer.password
-              });
-              turnReady = true;
+    userEffect(()=> {
+        let localStream;
+        io.on('all_users',(allUsers)=> {
+            let len = allUsers.length
+            for(let i=0; i<len; i++){
+                createPeerConnection(allUsers[i].id,allUsers[i].email,io,localStream)
+                let pc = pcs[allUsers[i].id]
+                if(pc) {
+                    pc.createOffer({offerToReceiveAudio:true,offerToReceiveVideo:true})
+                    .then(sdp=> {
+                        console.log('create offer success')
+                        pc.setLocalDescription(newRTCSessionDescription(sdp))
+                        io.emit('offer',{
+                            sdp:sdp,
+                            offerSendId:io.id,
+                            offerSendEmail:'offerSendSample@sample.com',
+                            offerReciveID:allUsers[i].id
+                        })
+                    }).catch(error=> {
+                        console.log(error)
+                    })
+                }
             }
-          };
-          xhr.open('GET', turnURL, true);
-          xhr.send();
+        })
+        io.on('getOffer',(data)=> {
+            console.log('get offer')
+            createPeerConnection(data.offerSendId,data.offerSendEmail,io,localStream)
+            let pc = pcs[data.offerSendId]
+            if(pc) {
+                pc.setRemoteDescription(new RTCSessionDescription(data.sdp)).then(()=> {
+                    console.log('answer set remote description success')
+                    pc.createAnswer({offerToReceiveVideo:true,offerToReceiveAudio:true})
+                    .then(sdp=> {
+                        console.log('create answer success')
+                        pc.setLocalDescription(new RTCSessionDescription(sdp))
+                        io.emit('answer',{
+                            sdp:sdp,
+                            answerSendID:io.id,
+                            answerREceiveID:data.offerSendId
+                        })
+                    }).catch(error=> {
+                        console.log(error)
+                    })
+                })
+            }
+        })
+        io.on('getAnswer',(data)=> {
+            console.log('get answer')
+            let pc = pcs[data.answerSendID]
+            if(pc) {
+                pc.setRemoteDescription(new RTCSessionDescription(data.sdp))
+            }
+        })
+        io.on('getCandidate',(data)=> {
+            console.log('get candidate')
+            let pc=  pcs[data.candidateSendID]
+            if(pc) {
+                pc.addIceCandidate(new RTCIceCandidate(data.candidate)).then(()=> {
+                    console.log('candidate add success')
+                })
+            }
+        })
+        io.on('user_exit',data=> {
+            pcs[data.id].close()
+            delete pcs[data.id]
+            setUsers(oldUsers=>oldUsers.filter(user=> user.id!==data.id))
+
+        })
+        setSocket(io)
+        navigator.mediaDevices.getUserMedia(mediaStreamConstraints).then(stream=> {
+            if(videolocalref.current) videolocalref.current.srcObject = stream
+            localStream = stream
+            io.emit('join_room',{room:'1234',email:'sample@naver.com'})
+
+        }).catch(error=> {
+            console.log('getUsermedia error'+error)
+        })
+    },[])
+    const createPeerConnection=(socketID,email,io,localStream)=> {
+        let pc = new RTCPeerConnection(pcConfig)
+        pcs = {...pcs,[socketID]:pc};
+        pc.onicecandidate=(e)=> {
+            if(e.candidate) {
+                console.log('onicecandidate')
+                io.emit('candidate',{
+                    candidate:e.candidate,
+                    candidateSendID:io.id,
+                    candidateReceiveID:socketID
+                })
+            }
         }
-      }
+        pc.oniceconnectionstatechange=(e)=> {
+            console.log(e)
+        }
+        pc.ontrack=(e)=> {
+            console.log('ontrack success')
+            setUsers(oldUsers=>oldUsers.filter(user=>user.id!==socketID))
+            setUsers(oldUsers=>[...oldUsers,{
+                id:socketID,
+                email:email,
+                stream:e.streams[0]
+            }])
+        }
+        if(localStream){
+            console.log('localstream add')
+            localStream.getTracks().forEach(track=> {
+                pc.addTrack(track,localStream)
+            })
+        }else {
+            console.log('no local stream')
+        }
+        return pc;
+    }
+
+
+
+
+    // var gotStream
+    // gotStream = async()=> {
+    //     try {
+    //         var stream = await navigator.mediaDevices.getUserMedia(mediaStreamConstraints)
+    //         .catch(e => console.log('getUserMedia() error: ', e));
+    //         //pc에 넣어주기 위한 변수
+    //         localStream = stream
+    //         //ref 를 통해 바로 화면에 보여줌
+    //         videolocalref.current.srcObject = stream
+    //         io.emit('create or join',roomname)
+        
+    //     } catch(err) {
+    //         console.log(err)
+    //     }
+    // }
+
     return (
         <>
-            <h1>Realtime communication with WebRTC</h1>
-            <video id="video1" ref={videolocalref} playsInline autoPlay muted></video>
-            <video id="video2" ref={videoremoteref} playsInline autoPlay></video>
-            <video id="video3" playsInline autoPlay></video>
-
             <div>
-                <button id="startButton" onClick={start}  >Start</button>
-                {/*클릭시 call변수가 false에서 true에서 바꿈 */}
-                <button id="callButton" onClick={call} >call</button>
-                <button id="hangupButton" onClick={hangup}>hangup</button>
+                <video
+                    style={{
+                    width: 240,
+                    height: 240,
+                    margin: 5,
+                    backgroundColor: 'black'
+                    }}
+                    muted
+                    ref={localVideoRef}
+                    autoPlay>
+                </video>
+                    {users.map((user, index) => {
+                        return (
+                        <Video
+                            key={index}
+                            email={user.email}
+                            stream={user.stream}
+                        />
+                        );
+                })}
             </div>
-            
-         
+        
+                
         </>
     )
 }
