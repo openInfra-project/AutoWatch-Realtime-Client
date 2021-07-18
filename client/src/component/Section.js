@@ -1,4 +1,4 @@
-import React ,{useCallback, useEffect, useRef,useState}from 'react'
+import React ,{createFactory, useCallback, useEffect, useRef,useState}from 'react'
 import './Section.scss'
 import socket from 'socket.io-client'
 import Video from './Video/index'
@@ -6,8 +6,8 @@ import { ThemeConsumer } from 'styled-components'
 
 
 function Section() {
-    const [socket,setSocket] = useState()
-    const [users,setUsers] = userState([])
+    
+    const [users,setUsers] = useState([])
     let pcs = {}
     
     const io = socket.connect("http://localhost:4000");
@@ -31,8 +31,10 @@ function Section() {
             username:"webrtc@live.com"
         }
     ]}
-    userEffect(()=> {
-        let localStream;
+    let localStream;
+    useEffect(()=> {
+        
+        console.log("처음 useEffect")
         io.on('all_users',(allUsers)=> {
             let len = allUsers.length
             for(let i=0; i<len; i++){
@@ -42,7 +44,7 @@ function Section() {
                     pc.createOffer({offerToReceiveAudio:true,offerToReceiveVideo:true})
                     .then(sdp=> {
                         console.log('create offer success')
-                        pc.setLocalDescription(newRTCSessionDescription(sdp))
+                        pc.setLocalDescription(new RTCSessionDescription(sdp))
                         io.emit('offer',{
                             sdp:sdp,
                             offerSendId:io.id,
@@ -99,15 +101,7 @@ function Section() {
             setUsers(oldUsers=>oldUsers.filter(user=> user.id!==data.id))
 
         })
-        setSocket(io)
-        navigator.mediaDevices.getUserMedia(mediaStreamConstraints).then(stream=> {
-            if(videolocalref.current) videolocalref.current.srcObject = stream
-            localStream = stream
-            io.emit('join_room',{room:'1234',email:'sample@naver.com'})
-
-        }).catch(error=> {
-            console.log('getUsermedia error'+error)
-        })
+      
     },[])
     const createPeerConnection=(socketID,email,io,localStream)=> {
         let pc = new RTCPeerConnection(pcConfig)
@@ -144,6 +138,21 @@ function Section() {
         }
         return pc;
     }
+    const gotmedia = async() => {
+        try {
+            var stream = await navigator.mediaDevices.getUserMedia(mediaStreamConstraints)
+            videolocalref.current.srcObject = stream
+            localStream = stream
+            io.emit('join room',{'room':'1234','email':'sample@naver.com'})
+            console.log('joinroom 성공?')
+        }catch(error) {
+            console.log(error)
+        }
+       
+    }
+    function click() {
+        gotmedia()
+    }
 
 
 
@@ -167,6 +176,7 @@ function Section() {
     return (
         <>
             <div>
+                <button onClick={click}>클릭</button>
                 <video
                     style={{
                     width: 240,
@@ -175,7 +185,7 @@ function Section() {
                     backgroundColor: 'black'
                     }}
                     muted
-                    ref={localVideoRef}
+                    ref={videolocalref}
                     autoPlay>
                 </video>
                     {users.map((user, index) => {
