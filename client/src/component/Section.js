@@ -38,6 +38,7 @@ function Section() {
         io.on('all_users',(allUsers)=> {
             let len = allUsers.length
             for(let i=0; i<len; i++){
+                console.log("현재 방의 참가자는 :"+allUsers[i].id)
                 createPeerConnection(allUsers[i].id,allUsers[i].email,io,localStream)
                 let pc = pcs[allUsers[i].id]
                 if(pc) {
