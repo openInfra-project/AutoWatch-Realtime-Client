@@ -34,20 +34,22 @@ function Section(props) {
         }
     ]}
     let localStream;
+    const gotmedia= async() => {
+        try {
+            console.log("테스트 활성화")
+            var stream= await navigator.mediaDevices.getUserMedia(myvideoaudio)
+            videolocalref.current.srcObject = stream
+            localStream = stream
+        }catch(error){
+            console.log(error)
+        }
+       
+    }
+    gotmedia()
     useEffect(()=> {
         console.log("UseEffect props 테스트:"+JSON.stringify(props))
         //비디오 스트림
-        const gotmedia= async() => {
-            try {
-                console.log("테스트 활성화")
-                var stream= await navigator.mediaDevices.getUserMedia(props.mediaStreamConstraints)
-                videolocalref.current.srcObject = stream
-                localStream = stream
-            }catch(error){
-                console.log(error)
-            }
-           
-        }
+      
         console.log("처음 useEffect")
         io.on('all_users',(allUsers)=> {
             let len = allUsers.length

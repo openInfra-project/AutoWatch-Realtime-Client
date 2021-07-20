@@ -2,15 +2,13 @@ import React ,{useState}from 'react'
 import { AiFillAudio,AiOutlineVideoCamera,AiOutlineFullscreen,AiOutlineUsergroupAdd} from "react-icons/ai";
 import './Footer.scss'
 import { BsChatSquareDots } from "react-icons/bs";
-import Section from './Section';
-import Home from './Home'
 import { useDispatch } from 'react-redux';
 import {toggleVideoAudio} from '../store/action/index'
 function Footer(props) {
     const dispatch = useDispatch()
     const [setting,Setsetting] = useState({
-        video:false,
-        audio:false
+        video:true,
+        audio:true
     })
     const onClickVideo = () => {
         Setsetting({
