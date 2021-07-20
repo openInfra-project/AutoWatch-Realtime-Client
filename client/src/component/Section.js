@@ -14,7 +14,7 @@ function Section(props) {
     const [users,setUsers] = useState([])
     let pcs = {}
     console.log("그냥 props 테스트:"+JSON.stringify(myvideoaudio))
-    const io = socket.connect("https://448194b86e8d.ngrok.io");
+    const io = socket.connect("https://373e458eca40.ngrok.io");
    
     var videolocalref = useRef(null)
     var videoremoteref = useRef(null)
