@@ -3,21 +3,23 @@ import './Section.scss'
 import socket from 'socket.io-client'
 import Video from './Video/index'
 import { ThemeConsumer } from 'styled-components'
+import { useDispatch, useSelector } from 'react-redux'
 
 
-function Section() {
-    
+function Section(props) {
+    //video audio 상태관리
+    const myvideoaudio = useSelector(state=>state.toggleVideoAudio)
+
+
     const [users,setUsers] = useState([])
     let pcs = {}
-    
+    console.log("그냥 props 테스트:"+JSON.stringify(myvideoaudio))
     const io = socket.connect("https://448194b86e8d.ngrok.io");
    
     var videolocalref = useRef(null)
     var videoremoteref = useRef(null)
-    const mediaStreamConstraints = {
-        video: true,
-        audio:false,
-    }
+    //props를 통해 받아줌
+    
   
     // //pcConfig에는 stun turn 서버를 적게되는데 rtc 중계를 끊어지는 걸 대비한
     // // 임시서버이다 https://gist.github.com/yetithefoot/7592580
@@ -33,7 +35,19 @@ function Section() {
     ]}
     let localStream;
     useEffect(()=> {
-        
+        console.log("UseEffect props 테스트:"+JSON.stringify(props))
+        //비디오 스트림
+        const gotmedia= async() => {
+            try {
+                console.log("테스트 활성화")
+                var stream= await navigator.mediaDevices.getUserMedia(props.mediaStreamConstraints)
+                videolocalref.current.srcObject = stream
+                localStream = stream
+            }catch(error){
+                console.log(error)
+            }
+           
+        }
         console.log("처음 useEffect")
         io.on('all_users',(allUsers)=> {
             let len = allUsers.length
@@ -102,6 +116,7 @@ function Section() {
             setUsers(oldUsers=>oldUsers.filter(user=> user.id!==data.id))
 
         })
+        gotmedia()
       
     },[])
     const createPeerConnection=(socketID,email,io,localStream)=> {
@@ -139,11 +154,8 @@ function Section() {
         }
         return pc;
     }
-    const gotmedia = async() => {
+    const gotconnect = ()=> {
         try {
-            var stream = await navigator.mediaDevices.getUserMedia(mediaStreamConstraints)
-            videolocalref.current.srcObject = stream
-            localStream = stream
             io.emit('join room',{'room':'1234','email':'sample@naver.com'})
             console.log('joinroom 성공?')
         }catch(error) {
@@ -152,7 +164,7 @@ function Section() {
        
     }
     function click() {
-        gotmedia()
+        gotconnect()
     }
 
 
@@ -176,8 +188,9 @@ function Section() {
 
     return (
         <>
+
             <div>
-                <button onClick={click}>클릭</button>
+                <button onClick={click}>연결</button>
                 <video
                     style={{
                     width: 240,
