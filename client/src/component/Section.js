@@ -10,7 +10,7 @@ function Section() {
     const [users,setUsers] = useState([])
     let pcs = {}
     
-    const io = socket.connect("https://b687da171c28.ngrok.io");
+    const io = socket.connect("http://localhost:4000");
    
     var videolocalref = useRef(null)
     var videoremoteref = useRef(null)
