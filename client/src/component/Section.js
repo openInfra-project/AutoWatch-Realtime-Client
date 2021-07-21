@@ -10,11 +10,17 @@ function Section(props) {
     //video audio 상태관리
     const myvideoaudio = useSelector(state=>state.toggleVideoAudio)
 
+    // var testid = document.getElementById('id')
+    // var stream = navigator.mediaDevices.getUserMedia({
+    //     video:true,
+    //     audio:true,
+    // })
+    // testid.srcObject = stream
 
     const [users,setUsers] = useState([])
     let pcs = {}
     console.log("그냥 props 테스트:"+JSON.stringify(myvideoaudio))
-    const io = socket.connect("https://373e458eca40.ngrok.io");
+    const io = socket.connect("https://fee7121ec8aa.ngrok.io");
    
     var videolocalref = useRef(null)
     var videoremoteref = useRef(null)
