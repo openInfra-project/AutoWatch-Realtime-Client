@@ -6,7 +6,7 @@ import {Grid} from 'semantic-ui-react'
 import useMedia from '../useMedia'
 import { ThemeConsumer } from 'styled-components'
 import { useDispatch, useSelector ,shallowEqual,} from 'react-redux'
-const SERVERPATH = "http://localhost:4000";
+const SERVERPATH = "https://ffb979d6b7e1.ngrok.io";
 const io = socket.connect(SERVERPATH);
 
 function Section() {
