@@ -60,7 +60,7 @@ function Section() {
             //비디오와 오디오 둘다 없으면 localstream 나가는것도 준다
             if(video ===false && audio ===false){
                 videolocalref.current.srcObject=null
-                localStream=null
+                //localStream=null
             }
             await navigator.mediaDevices.getUserMedia({
                 video:video,
@@ -109,10 +109,12 @@ function Section() {
     useEffect(()=> {
     
         io.on('all_users',(allUsers)=> {
+            console.log("자신을 제외한 users 숫자:"+len)
             let len = allUsers.length
             for(let i=0; i<len; i++){
                 console.log("현재 방의 참가자는 :"+allUsers[i].id)
                 createPeerConnection(allUsers[i].id,allUsers[i].email,io,localStream)
+                console.log("pc출력:"+pc)
                 let pc = pcs[allUsers[i].id]
                 if(pc) {
                     pc.createOffer({offerToReceiveAudio:true,offerToReceiveVideo:true})
