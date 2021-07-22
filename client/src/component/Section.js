@@ -6,7 +6,7 @@ import {Grid} from 'semantic-ui-react'
 import useMedia from '../useMedia'
 import { ThemeConsumer } from 'styled-components'
 import { useDispatch, useSelector ,shallowEqual,} from 'react-redux'
-const SERVERPATH = "https://6540a962300c.ngrok.io";
+const SERVERPATH = "http://localhost:4000";
 const io = socket.connect(SERVERPATH);
 
 function Section() {
@@ -56,46 +56,46 @@ function Section() {
 
 
     let localStream;
+    let len;
     const gotmedia= async() => {
-        gotconnect()
         try {
-            //비디오와 오디오 둘다 없으면 localstream 나가는것도 준다
             if(video ===false && audio ===false){
-                videolocalref.current.srcObject=null
-                localStream=null
-            }
-            await navigator.mediaDevices.getUserMedia({
-                video:video,
-                audio:audio
-            }).then((stream)=> {
-                videolocalref.current.srcObject = stream
-                localStream = stream
-                console.log("비디:"+video+"오디"+audio)
-                
-                
-            }).catch((err)=> {
-                console.log(err); /* handle the error */
-                //사용자가 웹캠을 가지고 있지 않은경우
-                if (err.name == "NotFoundError" || err.name == "DevicesNotFoundError") {
-                    alert("캠을 찾을 수 없습니다.")
-                //다른곳에서 웹캠이나 마이크에 엑세스를 이미 하고 있는 경우
-                } else if (err.name == "NotReadableError" || err.name == "TrackStartError") {
-                    //webcam or mic are already in use 
-                    alert("다른 곳에서 마이크 또는 웹캠을 사용중입니다")
-                } else if (err.name == "OverconstrainedError" || err.name == "ConstraintNotSatisfiedError") {
-                    //-----------------????-------------------
-                    //사용자가 웹캠또는 마이크에 액세스를 거부 한 경우
-                } else if (err.name == "NotAllowedError" || err.name == "PermissionDeniedError") {
-                    //둘다 false로 되어있는 경우
-                    alert('카메라 또는 마이크를 탐색할 수 없습니다.')
-                } else if (err.name == "TypeError" || err.name == "TypeError") {
-                    //alert대신 custom alert 하는게 나을 것 같다. lotti 라던가
-                    alert('비디오와 마이크가 꺼져있습니다')
+                console.log("둘다없음")
+                videolocalref.current.srcObject.getTracks()[0].stop()
+                localStream.getTracks()[0].stop()
+            }else {
+                await navigator.mediaDevices.getUserMedia({
+                    video:video,
+                    audio:audio
+                }).then((stream)=> {
+                    videolocalref.current.srcObject = stream
+                    localStream = stream
+                    
+                    
+                }).catch((err)=> {
+                    //console.log(err); /* handle the error */
+                    //사용자가 웹캠을 가지고 있지 않은경우
+                    if (err.name == "NotFoundError" || err.name == "DevicesNotFoundError") {
+                        alert("캠을 찾을 수 없습니다.")
+                    //다른곳에서 웹캠이나 마이크에 엑세스를 이미 하고 있는 경우
+                    } else if (err.name == "NotReadableError" || err.name == "TrackStartError") {
+                        //webcam or mic are already in use 
+                        alert("다른 곳에서 마이크 또는 웹캠을 사용중입니다")
+                    } else if (err.name == "OverconstrainedError" || err.name == "ConstraintNotSatisfiedError") {
+                        //-----------------????-------------------
+                        //사용자가 웹캠또는 마이크에 액세스를 거부 한 경우
+                    } else if (err.name == "NotAllowedError" || err.name == "PermissionDeniedError") {
+                        //둘다 false로 되어있는 경우
+                        alert('카메라 또는 마이크를 탐색할 수 없습니다.')
+                    } else if (err.name == "TypeError" || err.name == "TypeError") {
+                        //alert대신 custom alert 하는게 나을 것 같다. lotti 라던가
+                        alert('비디오와 마이크가 꺼져있습니다')
 
-                } else {
-                    //other errors 
-                }
-            })
+                    } else {
+                        //other errors 
+                    }
+                })
+            }
             
         }catch(error){
             console.log(error)
@@ -107,81 +107,84 @@ function Section() {
         gotmedia()
 
         console.log(":useEffect 불림")
-    },[video,audio])
+    })
+    io.on('all_users',(allUsers)=> {
+       
+        len = allUsers.length
+        console.log("자신을 제외한 users 숫자:"+len)
+        for(let i=0; i<len; i++){
+            console.log("현재 방의 참가자는 :"+allUsers[i].id)
+            console.log('io의 아이디'+io.id)
+            createPeerConnection(allUsers[i].id,allUsers[i].email,io,localStream)
+            let pc = pcs[allUsers[i].id]
+            console.log("pc출력:"+JSON.stringify(pc))
+            if(pc) {
+                pc.createOffer({offerToReceiveAudio:true,offerToReceiveVideo:true})
+                .then(sdp=> {
+                    console.log('create offer success')
+                    pc.setLocalDescription(new RTCSessionDescription(sdp))
+                    io.emit('offer',{
+                        sdp:sdp,
+                        offerSendId:io.id,
+                        offerSendEmail:'offerSendSample@sample.com',
+                        offerReciveID:allUsers[i].id
+                    })
+                }).catch(error=> {
+                    console.log(error)
+                })
+            }
+        }
+    })
+    io.on('getOffer',(data)=> {
+        console.log('get offer')
+        createPeerConnection(data.offerSendId,data.offerSendEmail,io,localStream)
+        let pc = pcs[data.offerSendId]
+        if(pc) {
+            pc.setRemoteDescription(new RTCSessionDescription(data.sdp)).then(()=> {
+                console.log('answer set remote description success')
+                pc.createAnswer({offerToReceiveVideo:true,offerToReceiveAudio:true})
+                .then(sdp=> {
+                    console.log('create answer success')
+                    pc.setLocalDescription(new RTCSessionDescription(sdp))
+                    io.emit('answer',{
+                        sdp:sdp,
+                        answerSendID:io.id,
+                        answerREceiveID:data.offerSendId
+                    })
+                }).catch(error=> {
+                    console.log(error)
+                })
+            })
+        }
+    })
+    io.on('getAnswer',(data)=> {
+        console.log('get answer')
+        let pc = pcs[data.answerSendID]
+        if(pc) {
+            pc.setRemoteDescription(new RTCSessionDescription(data.sdp))
+        }
+    })
+    io.on('getCandidate',(data)=> {
+        console.log('get candidate')
+        let pc=  pcs[data.candidateSendID]
+        if(pc) {
+            pc.addIceCandidate(new RTCIceCandidate(data.candidate)).then(()=> {
+                console.log('candidate add success')
+            })
+        }
+    })
+    io.on('user_exit',data=> {
+        pcs[data.id].close()
+        delete pcs[data.id]
+        setUsers(oldUsers=>oldUsers.filter(user=> user.id!==data.id))
+
+    })
     useEffect(()=> {
     
-        io.on('all_users',(allUsers)=> {
-            console.log("자신을 제외한 users 숫자:"+len)
-            let len = allUsers.length
-            for(let i=0; i<len; i++){
-                console.log("현재 방의 참가자는 :"+allUsers[i].id)
-                createPeerConnection(allUsers[i].id,allUsers[i].email,io,localStream)
-                console.log("pc출력:"+pc)
-                let pc = pcs[allUsers[i].id]
-                if(pc) {
-                    pc.createOffer({offerToReceiveAudio:true,offerToReceiveVideo:true})
-                    .then(sdp=> {
-                        console.log('create offer success')
-                        pc.setLocalDescription(new RTCSessionDescription(sdp))
-                        io.emit('offer',{
-                            sdp:sdp,
-                            offerSendId:io.id,
-                            offerSendEmail:'offerSendSample@sample.com',
-                            offerReciveID:allUsers[i].id
-                        })
-                    }).catch(error=> {
-                        console.log(error)
-                    })
-                }
-            }
-        })
-        io.on('getOffer',(data)=> {
-            console.log('get offer')
-            createPeerConnection(data.offerSendId,data.offerSendEmail,io,localStream)
-            let pc = pcs[data.offerSendId]
-            if(pc) {
-                pc.setRemoteDescription(new RTCSessionDescription(data.sdp)).then(()=> {
-                    console.log('answer set remote description success')
-                    pc.createAnswer({offerToReceiveVideo:true,offerToReceiveAudio:true})
-                    .then(sdp=> {
-                        console.log('create answer success')
-                        pc.setLocalDescription(new RTCSessionDescription(sdp))
-                        io.emit('answer',{
-                            sdp:sdp,
-                            answerSendID:io.id,
-                            answerREceiveID:data.offerSendId
-                        })
-                    }).catch(error=> {
-                        console.log(error)
-                    })
-                })
-            }
-        })
-        io.on('getAnswer',(data)=> {
-            console.log('get answer')
-            let pc = pcs[data.answerSendID]
-            if(pc) {
-                pc.setRemoteDescription(new RTCSessionDescription(data.sdp))
-            }
-        })
-        io.on('getCandidate',(data)=> {
-            console.log('get candidate')
-            let pc=  pcs[data.candidateSendID]
-            if(pc) {
-                pc.addIceCandidate(new RTCIceCandidate(data.candidate)).then(()=> {
-                    console.log('candidate add success')
-                })
-            }
-        })
-        io.on('user_exit',data=> {
-            pcs[data.id].close()
-            delete pcs[data.id]
-            setUsers(oldUsers=>oldUsers.filter(user=> user.id!==data.id))
-
-        })
+        
         
       
-    },[])
+    })
     const createPeerConnection=(socketID,email,io,localStream)=> {
         let pc = new RTCPeerConnection(pcConfig)
         pcs = {...pcs,[socketID]:pc};
@@ -200,7 +203,11 @@ function Section() {
         }
         pc.ontrack=(e)=> {
             console.log('ontrack success')
-            console.log('e stream:'+e.streams.length)
+            console.log('e stream의 길이:'+e.streams.length)
+            for(let i=0; i<e.streams.length; i++){
+                 console.log('e stream 테스트'+e.streams[i])
+            }
+           
             setUsers(oldUsers=>oldUsers.filter(user=>user.id!==socketID))
             setUsers(oldUsers=>[...oldUsers,{
                 id:socketID,
@@ -208,14 +215,14 @@ function Section() {
                 stream:e.streams[0]
             }])
         }
-        // if(localStream){
-        console.log('localstream add')
-        localStream.getTracks().forEach(track=> {
-            pc.addTrack(track,localStream)
-        })
-        // }else {
-            // console.log('no local stream')
-        // }
+        if(localStream){
+            console.log('localstream add')
+            localStream.getTracks().forEach(track=> {
+                pc.addTrack(track,localStream)
+            })
+        }else {
+            console.log('no local stream')
+        }
         return pc;
     }
    
