@@ -54,13 +54,15 @@ function Section() {
 
 
 
+
     let localStream;
     const gotmedia= async() => {
+        gotconnect()
         try {
             //비디오와 오디오 둘다 없으면 localstream 나가는것도 준다
             if(video ===false && audio ===false){
                 videolocalref.current.srcObject=null
-                //localStream=null
+                localStream=null
             }
             await navigator.mediaDevices.getUserMedia({
                 video:video,
@@ -206,14 +208,14 @@ function Section() {
                 stream:e.streams[0]
             }])
         }
-        if(localStream){
-            console.log('localstream add')
-            localStream.getTracks().forEach(track=> {
-                pc.addTrack(track,localStream)
-            })
-        }else {
-            console.log('no local stream')
-        }
+        // if(localStream){
+        console.log('localstream add')
+        localStream.getTracks().forEach(track=> {
+            pc.addTrack(track,localStream)
+        })
+        // }else {
+            // console.log('no local stream')
+        // }
         return pc;
     }
    
