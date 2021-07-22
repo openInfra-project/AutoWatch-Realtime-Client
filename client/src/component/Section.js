@@ -1,30 +1,32 @@
-import React ,{createFactory, useCallback, useEffect, useRef,useState}from 'react'
+import React ,{createFactory, useCallback, useEffect, useMemo, useRef,useState}from 'react'
 import './Section.scss'
 import socket from 'socket.io-client'
 import Video from './Video/index'
+import {Grid} from 'semantic-ui-react'
+import useMedia from '../useMedia'
 import { ThemeConsumer } from 'styled-components'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch, useSelector ,shallowEqual,} from 'react-redux'
+const SERVERPATH = "http://localhost:4000";
+const io = socket.connect(SERVERPATH);
 
-
-function Section(props) {
+function Section() {
     //video audio 상태관리
-    const myvideoaudio = useSelector(state=>state.toggleVideoAudio)
+    const {video,audio}= useSelector((state)=> ({
+        video:state.toggleVideoAudio.video,
+        audio:state.toggleVideoAudio.audio
+    }),(prev,next)=> {
+        return prev.video ===next.video && prev.audio === next.audio
+    })
 
-    // var testid = document.getElementById('id')
-    // var stream = navigator.mediaDevices.getUserMedia({
-    //     video:true,
-    //     audio:true,
-    // })
-    // testid.srcObject = stream
+
+    console.log("Section 비디오 상태:"+video+"\n Section 오디오 상태"+audio)
+
 
     const [users,setUsers] = useState([])
     let pcs = {}
-    console.log("그냥 props 테스트:"+JSON.stringify(myvideoaudio))
-    const io = socket.connect("https://fee7121ec8aa.ngrok.io");
-   
+
     var videolocalref = useRef(null)
     var videoremoteref = useRef(null)
-    //props를 통해 받아줌
     
   
     // //pcConfig에는 stun turn 서버를 적게되는데 rtc 중계를 끊어지는 걸 대비한
@@ -39,24 +41,73 @@ function Section(props) {
             username:"webrtc@live.com"
         }
     ]}
+
+    const columnCount = useMedia(
+        // Media queries
+        ['(min-width: 1024px)', '(min-width: 768px)', '(min-width: 400px)'],
+        // Column counts (relates to above media queries by array index)
+        [3, 2, 1],
+        // Default column count
+        1
+    )
+
+
+
+
     let localStream;
     const gotmedia= async() => {
         try {
-            console.log("테스트 활성화")
-            var stream= await navigator.mediaDevices.getUserMedia(myvideoaudio)
-            videolocalref.current.srcObject = stream
-            localStream = stream
+            //비디오와 오디오 둘다 없으면 localstream 나가는것도 준다
+            if(video ===false && audio ===false){
+                videolocalref.current.srcObject=null
+                localStream=null
+            }
+            await navigator.mediaDevices.getUserMedia({
+                video:video,
+                audio:audio
+            }).then((stream)=> {
+                videolocalref.current.srcObject = stream
+                localStream = stream
+                console.log("비디:"+video+"오디"+audio)
+                
+                
+            }).catch((err)=> {
+                console.log(err); /* handle the error */
+                //사용자가 웹캠을 가지고 있지 않은경우
+                if (err.name == "NotFoundError" || err.name == "DevicesNotFoundError") {
+                    alert("캠을 찾을 수 없습니다.")
+                //다른곳에서 웹캠이나 마이크에 엑세스를 이미 하고 있는 경우
+                } else if (err.name == "NotReadableError" || err.name == "TrackStartError") {
+                    //webcam or mic are already in use 
+                    alert("다른 곳에서 마이크 또는 웹캠을 사용중입니다")
+                } else if (err.name == "OverconstrainedError" || err.name == "ConstraintNotSatisfiedError") {
+                    //-----------------????-------------------
+                    //사용자가 웹캠또는 마이크에 액세스를 거부 한 경우
+                } else if (err.name == "NotAllowedError" || err.name == "PermissionDeniedError") {
+                    //둘다 false로 되어있는 경우
+                    alert('카메라 또는 마이크를 탐색할 수 없습니다.')
+                } else if (err.name == "TypeError" || err.name == "TypeError") {
+                    //alert대신 custom alert 하는게 나을 것 같다. lotti 라던가
+                    alert('비디오와 마이크가 꺼져있습니다')
+
+                } else {
+                    //other errors 
+                }
+            })
+            
         }catch(error){
             console.log(error)
         }
        
     }
-    gotmedia()
+   
     useEffect(()=> {
-        console.log("UseEffect props 테스트:"+JSON.stringify(props))
-        //비디오 스트림
-      
-        console.log("처음 useEffect")
+        gotmedia()
+
+        console.log(":useEffect 불림")
+    },[video,audio])
+    useEffect(()=> {
+    
         io.on('all_users',(allUsers)=> {
             let len = allUsers.length
             for(let i=0; i<len; i++){
@@ -124,7 +175,7 @@ function Section(props) {
             setUsers(oldUsers=>oldUsers.filter(user=> user.id!==data.id))
 
         })
-        gotmedia()
+        
       
     },[])
     const createPeerConnection=(socketID,email,io,localStream)=> {
@@ -145,6 +196,7 @@ function Section(props) {
         }
         pc.ontrack=(e)=> {
             console.log('ontrack success')
+            console.log('e stream:'+e.streams.length)
             setUsers(oldUsers=>oldUsers.filter(user=>user.id!==socketID))
             setUsers(oldUsers=>[...oldUsers,{
                 id:socketID,
@@ -162,8 +214,10 @@ function Section(props) {
         }
         return pc;
     }
+   
     const gotconnect = ()=> {
         try {
+           
             io.emit('join room',{'room':'1234','email':'sample@naver.com'})
             console.log('joinroom 성공?')
         }catch(error) {
@@ -171,9 +225,9 @@ function Section(props) {
         }
        
     }
-    function click() {
-        gotconnect()
-    }
+    //
+    console.log("-------connet 합니다----------")
+    gotconnect()
 
 
 
@@ -198,7 +252,7 @@ function Section(props) {
         <>
 
             <div>
-                <button onClick={click}>연결</button>
+                
                 <video
                     style={{
                     width: 240,
@@ -211,13 +265,13 @@ function Section(props) {
                     autoPlay>
                 </video>
                     {users.map((user, index) => {
-                        return (
+                        
                         <Video
                             key={index}
                             email={user.email}
                             stream={user.stream}
                         />
-                        );
+                        
                 })}
             </div>
         
@@ -225,4 +279,5 @@ function Section(props) {
         </>
     )
 }
+
 export default Section

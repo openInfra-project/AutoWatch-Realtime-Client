@@ -1,20 +1,29 @@
-import React ,{useState}from 'react'
+import React ,{useEffect, useState}from 'react'
 import { AiFillAudio,AiOutlineVideoCamera,AiOutlineFullscreen,AiOutlineUsergroupAdd} from "react-icons/ai";
 import './Footer.scss'
 import { BsChatSquareDots } from "react-icons/bs";
 import { useDispatch } from 'react-redux';
 import {toggleVideoAudio} from '../store/action/index'
+
+const setting = {
+    video:false,
+    audio:false
+}
 function Footer(props) {
+  
     const dispatch = useDispatch()
-    const [setting,Setsetting] = useState({
-        video:true,
-        audio:true
-    })
+    // const [setting,Setsetting] = useState({
+    //     video:false,
+    //     audio:false
+    // })
     const onClickVideo = () => {
-        Setsetting({
-            ...setting,
-            video : !setting.video
-        })
+        // Setsetting((previousState)=> {
+        //     return {
+        //         ...previousState,
+        //         video : !(previousState.video)
+        //     }
+        // })
+        setting.video =  !(setting.video)
         console.log("비디오 활성화 상태:"+setting.video)
         //video상태를 전부 store에 저장
         dispatch(toggleVideoAudio(setting))
@@ -22,10 +31,13 @@ function Footer(props) {
         
     }
     const onClickAudio = ()=> {
-        Setsetting({
-            ...setting,
-            audio : !setting.audio
-        })
+        // Setsetting((previousState)=> {
+        //     return {
+        //         ...previousState,
+        //         audio : !(previousState.audio)
+        //     }
+        // })
+        setting.audio = !(setting.audio)
         console.log("오디오 활성화 상태:"+setting.audio)
         //audio상태를 전부 store에 저장
         dispatch(toggleVideoAudio(setting))
