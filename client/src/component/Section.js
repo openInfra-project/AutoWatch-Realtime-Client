@@ -57,7 +57,7 @@ function Section() {
         1
     )
 
-
+    let pc = new RTCPeerConnection(pcConfig)
 
 
 
@@ -74,7 +74,12 @@ function Section() {
                 }).then((stream)=> {
                     videolocalref.current.srcObject = stream
                     localStream = stream
-                    
+
+                    localStream.getTracks().forEach(track=> {
+                        pc.addTrack(track,localStream)
+                    })
+
+
                     
                 }).catch((err)=> {
                     //console.log(err); /* handle the error */
@@ -194,8 +199,9 @@ function Section() {
       
     },[])
     const createPeerConnection=(socketID,email,io,localStream)=> {
-        let pc = new RTCPeerConnection(pcConfig)
+        
         pcs = {...pcs,[socketID]:pc};
+       
         pc.onicecandidate=(e)=> {
             if(e.candidate) {
                 console.log('onicecandidate')
@@ -223,14 +229,14 @@ function Section() {
                 stream:e.streams[0]
             }])
         }
-        if(localStream){
-            console.log('localstream add')
-            localStream.getTracks().forEach(track=> {
-                pc.addTrack(track,localStream)
-            })
-        }else {
-            console.log('no local stream')
-        }
+        // if(localStream){
+        //     console.log('localstream add')
+        //     localStream.getTracks().forEach(track=> {
+        //         pc.addTrack(track,localStream)
+        //     })
+        // }else {
+        //     console.log('no local stream')
+        // }
         return pc;
     }
    
