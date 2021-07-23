@@ -6,7 +6,7 @@ import {Grid} from 'semantic-ui-react'
 import useMedia from '../useMedia'
 import { ThemeConsumer } from 'styled-components'
 import { useDispatch, useSelector ,shallowEqual,} from 'react-redux'
-const SERVERPATH = "https://ffb979d6b7e1.ngrok.io";
+const SERVERPATH = "https://86c15b9f682f.ngrok.io";
 const io = socket.connect(SERVERPATH);
 
 function Section() {
@@ -107,84 +107,84 @@ function Section() {
         gotmedia()
 
         console.log(":useEffect 불림")
-    })
-    io.on('all_users',(allUsers)=> {
-       
-        len = allUsers.length
-        console.log("자신을 제외한 users 숫자:"+len)
-        for(let i=0; i<len; i++){
-            console.log("현재 방의 참가자는 :"+allUsers[i].id)
-            console.log('io의 아이디'+io.id)
-            createPeerConnection(allUsers[i].id,allUsers[i].email,io,localStream)
-            let pc = pcs[allUsers[i].id]
-            console.log("pc출력:"+JSON.stringify(pc))
-            if(pc) {
-                pc.createOffer({offerToReceiveAudio:true,offerToReceiveVideo:true})
-                .then(sdp=> {
-                    console.log('create offer success')
-                    pc.setLocalDescription(new RTCSessionDescription(sdp))
-                    io.emit('offer',{
-                        sdp:sdp,
-                        offerSendId:io.id,
-                        offerSendEmail:'offerSendSample@sample.com',
-                        offerReciveID:allUsers[i].id
+    },[audio,video])
+    
+    useEffect(()=> {
+        io.on('all_users',(allUsers)=> {
+        
+            len = allUsers.length
+            console.log("자신을 제외한 users 숫자:"+len)
+            for(let i=0; i<len; i++){
+                console.log("현재 방의 참가자는 :"+allUsers[i].id)
+                console.log('io의 아이디'+io.id)
+                createPeerConnection(allUsers[i].id,allUsers[i].email,io,localStream)
+                let pc = pcs[allUsers[i].id]
+                console.log("pc출력:"+JSON.stringify(pc))
+                if(pc) {
+                    pc.createOffer({offerToReceiveAudio:true,offerToReceiveVideo:true})
+                    .then(sdp=> {
+                        console.log('create offer success')
+                        pc.setLocalDescription(new RTCSessionDescription(sdp))
+                        io.emit('offer',{
+                            sdp:sdp,
+                            offerSendId:io.id,
+                            offerSendEmail:'offerSendSample@sample.com',
+                            offerReciveID:allUsers[i].id
+                        })
+                    }).catch(error=> {
+                        console.log(error)
                     })
-                }).catch(error=> {
-                    console.log(error)
+                }
+            }
+        })
+        io.on('getOffer',(data)=> {
+            console.log('get offer')
+            createPeerConnection(data.offerSendId,data.offerSendEmail,io,localStream)
+            let pc = pcs[data.offerSendId]
+            if(pc) {
+                pc.setRemoteDescription(new RTCSessionDescription(data.sdp)).then(()=> {
+                    console.log('answer set remote description success')
+                    pc.createAnswer({offerToReceiveVideo:true,offerToReceiveAudio:true})
+                    .then(sdp=> {
+                        console.log('create answer success')
+                        pc.setLocalDescription(new RTCSessionDescription(sdp))
+                        io.emit('answer',{
+                            sdp:sdp,
+                            answerSendID:io.id,
+                            answerREceiveID:data.offerSendId
+                        })
+                    }).catch(error=> {
+                        console.log(error)
+                    })
                 })
             }
-        }
-    })
-    io.on('getOffer',(data)=> {
-        console.log('get offer')
-        createPeerConnection(data.offerSendId,data.offerSendEmail,io,localStream)
-        let pc = pcs[data.offerSendId]
-        if(pc) {
-            pc.setRemoteDescription(new RTCSessionDescription(data.sdp)).then(()=> {
-                console.log('answer set remote description success')
-                pc.createAnswer({offerToReceiveVideo:true,offerToReceiveAudio:true})
-                .then(sdp=> {
-                    console.log('create answer success')
-                    pc.setLocalDescription(new RTCSessionDescription(sdp))
-                    io.emit('answer',{
-                        sdp:sdp,
-                        answerSendID:io.id,
-                        answerREceiveID:data.offerSendId
-                    })
-                }).catch(error=> {
-                    console.log(error)
+        })
+        io.on('getAnswer',(data)=> {
+            console.log('get answer')
+            let pc = pcs[data.answerSendID]
+            if(pc) {
+                pc.setRemoteDescription(new RTCSessionDescription(data.sdp))
+            }
+        })
+        io.on('getCandidate',(data)=> {
+            console.log('get candidate')
+            let pc=  pcs[data.candidateSendID]
+            if(pc) {
+                pc.addIceCandidate(new RTCIceCandidate(data.candidate)).then(()=> {
+                    console.log('candidate add success')
                 })
-            })
-        }
-    })
-    io.on('getAnswer',(data)=> {
-        console.log('get answer')
-        let pc = pcs[data.answerSendID]
-        if(pc) {
-            pc.setRemoteDescription(new RTCSessionDescription(data.sdp))
-        }
-    })
-    io.on('getCandidate',(data)=> {
-        console.log('get candidate')
-        let pc=  pcs[data.candidateSendID]
-        if(pc) {
-            pc.addIceCandidate(new RTCIceCandidate(data.candidate)).then(()=> {
-                console.log('candidate add success')
-            })
-        }
-    })
-    io.on('user_exit',data=> {
-        pcs[data.id].close()
-        delete pcs[data.id]
-        setUsers(oldUsers=>oldUsers.filter(user=> user.id!==data.id))
+            }
+        })
+        io.on('user_exit',data=> {
+            pcs[data.id].close()
+            delete pcs[data.id]
+            setUsers(oldUsers=>oldUsers.filter(user=> user.id!==data.id))
 
-    })
-    useEffect(()=> {
-    
-        
+        })
+            
         
       
-    })
+    },[])
     const createPeerConnection=(socketID,email,io,localStream)=> {
         let pc = new RTCPeerConnection(pcConfig)
         pcs = {...pcs,[socketID]:pc};
