@@ -27,7 +27,13 @@ function Section() {
 
     var videolocalref = useRef(null)
     var videoremoteref = useRef(null)
-    
+    let localStream;
+    let len;
+    let tempdata= {
+        test1:'',
+        test2:''
+
+    };
   
     // //pcConfig에는 stun turn 서버를 적게되는데 rtc 중계를 끊어지는 걸 대비한
     // // 임시서버이다 https://gist.github.com/yetithefoot/7592580
@@ -55,8 +61,6 @@ function Section() {
 
 
 
-    let localStream;
-    let len;
     const gotmedia= async() => {
         try {
             if(video ===false && audio ===false){
@@ -105,7 +109,7 @@ function Section() {
    
     useEffect(()=> {
         gotmedia()
-
+        createPeerConnection(tempdata.test1,tempdata.test2,io,localStream)
         console.log(":useEffect 불림")
     },[audio,video])
     
@@ -140,6 +144,10 @@ function Section() {
         io.on('getOffer',(data)=> {
             console.log('get offer')
             createPeerConnection(data.offerSendId,data.offerSendEmail,io,localStream)
+            tempdata  = {
+                test1:data.offerSendId,
+                test2:data.offerSendEmail
+            }
             let pc = pcs[data.offerSendId]
             if(pc) {
                 pc.setRemoteDescription(new RTCSessionDescription(data.sdp)).then(()=> {
