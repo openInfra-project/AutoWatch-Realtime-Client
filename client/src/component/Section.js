@@ -199,7 +199,7 @@ function Section() {
         
       
     },[])
-    const createPeerConnection=(socketID,email,io,localStream)=> {
+    const createPeerConnection=(socketID,email,io,localStreams)=> {
         let pc = new RTCPeerConnection(pcConfig)
         pcs = {...pcs,[socketID]:pc};
         // setUsers(oldUsers=>[...oldUsers,{
@@ -220,7 +220,7 @@ function Section() {
             setUsers(oldUsers=>[...oldUsers,{
                 id:socketID,
                 email:email,
-                stream:undefined
+                stream:localStreams
             }])
         }
        
@@ -228,10 +228,10 @@ function Section() {
        
         console.log("socketid:"+socketID+"email"+ email)
         console.log("users:"+JSON.stringify(users))
-        if(localStream){
-            console.log('localstream add')
-            localStream.getTracks().forEach(track=> {
-                pc.addTrack(track,localStream)
+        if(localStreams){
+            console.log('localstreams add')
+            localStreams.getTracks().forEach(track=> {
+                pc.addTrack(track,localStreams)
                 console.log("pc상세정보"+JSON.stringify(pc))
                 
             })
@@ -255,9 +255,7 @@ function Section() {
         pc.ontrack=(e)=> {
             console.log('ontrack success')
             console.log('e stream의 길이:'+e.streams.length)
-            for(let i=0; i<e.streams.length; i++){
-                 console.log('e stream 테스트'+e.streams[i])
-            }
+           
             setUsers(oldUsers=>oldUsers.filter(user=>user.id!==socketID))
             setUsers(oldUsers=>[...oldUsers,{
                 id:socketID,
@@ -332,7 +330,7 @@ function Section() {
                             <Video
                                 key={index}
                                 email={user.email}
-                                stream={user.stream||undefined}
+                                stream={user.stream}
                             />
                         )
                       
