@@ -13,18 +13,18 @@ let tempdata= {
     test3:''
 
 };
-function Section() {
-    
+function Section(props) {
+    console.log(props.setting)
     //video audio 상태관리
-    const {video,audio}= useSelector((state)=> ({
-        video:state.toggleVideoAudio.video,
-        audio:state.toggleVideoAudio.audio
-    }),(prev,next)=> {
-        return prev.video ===next.video && prev.audio === next.audio
-    })
+    // const {video,audio}= useSelector((state)=> ({
+    //     video:state.toggleVideoAudio.video,
+    //     audio:state.toggleVideoAudio.audio
+    // }),(prev,next)=> {
+    //     return prev.video ===next.video && prev.audio === next.audio
+    // })
 
 
-    console.log("Section 비디오 상태:"+video+"\n Section 오디오 상태"+audio)
+    // console.log("Section 비디오 상태:"+video+"\n Section 오디오 상태"+audio)
 
 
     const [users,setUsers] = useState([])
@@ -62,12 +62,45 @@ function Section() {
 
 
 
-   
-   
+
   
-    
+    //footer부분을 home으로 다 옮기고
+    //비디오와 오디오를 props로 section으로 보내주기 !
     useEffect(()=> {
+        navigator.mediaDevices.getUserMedia(
+           props.setting
+        ).then((stream)=> {
+            localStream = stream
+            videolocalref.current.srcObject = stream
+            
+            gotconnect()
+            
+            
         
+            console.log("성공 시 localstream 상태: "+Object.toString(stream))
+        }).catch((err)=> {
+            //console.log(err); /* handle the error */
+            //사용자가 웹캠을 가지고 있지 않은경우
+            if (err.name === "NotFoundError" || err.name === "DevicesNotFoundError") {
+                alert("캠을 찾을 수 없습니다.")
+            //다른곳에서 웹캠이나 마이크에 엑세스를 이미 하고 있는 경우
+            } else if (err.name === "NotReadableError" || err.name === "TrackStartError") {
+                //webcam or mic are already in use 
+                alert("다른 곳에서 마이크 또는 웹캠을 사용중입니다")
+            } else if (err.name === "OverconstrainedError" || err.name === "ConstraintNotSatisfiedError") {
+                //-----------------????-------------------
+                //사용자가 웹캠또는 마이크에 액세스를 거부 한 경우
+            } else if (err.name === "NotAllowedError" || err.name ==="PermissionDeniedError") {
+                //둘다 false로 되어있는 경우
+                alert('카메라 또는 마이크를 탐색할 수 없습니다.')
+            } else if (err.name === "TypeError" || err.name === "TypeError") {
+                //alert대신 custom alert 하는게 나을 것 같다. lotti 라던가
+                alert('비디오와 마이크가 꺼져있습니다')
+    
+            } else {
+                //other errors 
+            }
+        })
         io.on('all_users',(allUsers)=> {
         
             len = allUsers.length
@@ -147,66 +180,11 @@ function Section() {
             setUsers(oldUsers=>oldUsers.filter(user=> user.id!==data.id))
 
         })
-        const gotmedia= async() => {
-            try {
-                if(video ===false && audio ===false){
-                    
-                    videolocalref.current.srcObject.getTracks()[0].stop()
-                    localStream.getTracks()[0].stop()
-                    
-                    
-                    console.log("localstream 상태: "+localStream)
-                }else {
-                    await navigator.mediaDevices.getUserMedia({
-                        video:video,
-                        audio:audio
-                    }).then((stream)=> {
-                        localStream = stream
-                        videolocalref.current.srcObject = stream
-                        
-                        gotconnect()
-                        
-                        
-                    
-                        console.log("성공 시 localstream 상태: "+Object.toString(stream))
-                    }).catch((err)=> {
-                        //console.log(err); /* handle the error */
-                        //사용자가 웹캠을 가지고 있지 않은경우
-                        if (err.name === "NotFoundError" || err.name === "DevicesNotFoundError") {
-                            alert("캠을 찾을 수 없습니다.")
-                        //다른곳에서 웹캠이나 마이크에 엑세스를 이미 하고 있는 경우
-                        } else if (err.name === "NotReadableError" || err.name === "TrackStartError") {
-                            //webcam or mic are already in use 
-                            alert("다른 곳에서 마이크 또는 웹캠을 사용중입니다")
-                        } else if (err.name === "OverconstrainedError" || err.name === "ConstraintNotSatisfiedError") {
-                            //-----------------????-------------------
-                            //사용자가 웹캠또는 마이크에 액세스를 거부 한 경우
-                        } else if (err.name === "NotAllowedError" || err.name ==="PermissionDeniedError") {
-                            //둘다 false로 되어있는 경우
-                            alert('카메라 또는 마이크를 탐색할 수 없습니다.')
-                        } else if (err.name === "TypeError" || err.name === "TypeError") {
-                            //alert대신 custom alert 하는게 나을 것 같다. lotti 라던가
-                            alert('비디오와 마이크가 꺼져있습니다')
-    
-                        } else {
-                            //other errors 
-                        }
-                    })
-                }
-                
-              
-               
-            }catch(error){
-                console.log(error)
-                //undefined
-                console.log("localstream 상태: "+localStream)
-            }
-           
-        }
+        
        
         
-        gotmedia()
-    },[audio,video])
+      
+    },[])
     const createPeerConnection=(socketID,email,io,localStreams)=> {
         let pc = new RTCPeerConnection(pcConfig)
         if(localStreams){
