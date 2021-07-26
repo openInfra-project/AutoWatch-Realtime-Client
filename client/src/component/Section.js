@@ -65,10 +65,10 @@ function Section() {
     const gotmedia= async() => {
         try {
             if(video ===false && audio ===false){
-               
+                
                 videolocalref.current.srcObject.getTracks()[0].stop()
                 localStream.getTracks()[0].stop()
-             
+                
                 
                 console.log("localstream 상태: "+localStream)
             }else {
@@ -76,11 +76,12 @@ function Section() {
                     video:video,
                     audio:audio
                 }).then((stream)=> {
-                    videolocalref.current.srcObject = stream
                     localStream = stream
+                    videolocalref.current.srcObject = stream
+                    
                     // gotconnect()
                     
-                    gotconnect()
+                    
                 
                     console.log("성공 시 localstream 상태: "+Object.toString(stream))
                 }).catch((err)=> {
@@ -108,6 +109,8 @@ function Section() {
                 })
             }
             
+            gotconnect()
+           
         }catch(error){
             console.log(error)
             //undefined
@@ -218,6 +221,7 @@ function Section() {
                 pc.addTrack(track,localStreams)
                 
             })
+            
            
         }else {
             console.log('no local stream')
@@ -254,20 +258,10 @@ function Section() {
         pc.oniceconnectionstatechange=(e)=> {
             console.log(e)
         }
-       pc.ontrack=e=> {
-            console.log('ontrack success')
-            console.log("aaaaaaaa"+e.streams.length)
-            setUsers(oldUsers=>oldUsers.filter(user=>user.id!==socketID))
-            setUsers(oldUsers=>[...oldUsers,{
-                id:socketID,
-                email:email,
-                stream:e.streams[0]
-            }])
-        }
+      
        
         return pc;
     }
-    createPeerConnection("","",io,"")
     const gotconnect = ()=> {
         try {
            
