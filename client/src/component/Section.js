@@ -200,6 +200,7 @@ function Section() {
       
     },[])
     const createPeerConnection=(socketID,email,io,localStreams)=> {
+        console.log("createPeer 스트림 체크:"+localStreams)
         let pc = new RTCPeerConnection(pcConfig)
         pcs = {...pcs,[socketID]:pc};
         // setUsers(oldUsers=>[...oldUsers,{
@@ -228,17 +229,7 @@ function Section() {
        
         console.log("socketid:"+socketID+"email"+ email)
         console.log("users:"+JSON.stringify(users))
-        if(localStreams){
-            console.log('localstreams add')
-            localStreams.getTracks().forEach(track=> {
-                pc.addTrack(track,localStreams)
-                console.log("pc상세정보"+JSON.stringify(pc))
-                
-            })
-        }else {
-            console.log('no local stream')
-            
-        }
+     
         pc.onicecandidate=(e)=> {
             if(e.candidate) {
                 console.log('onicecandidate')
@@ -263,14 +254,18 @@ function Section() {
                 stream:e.streams[0]
             }])
         }
-        // if(localStream){
-        //     console.log('localstream add')
-        //     localStream.getTracks().forEach(track=> {
-        //         pc.addTrack(track,localStream)
-        //     })
-        // }else {
-        //     console.log('no local stream')
-        // }
+        if(localStreams){
+            console.log('localstreams add')
+            localStreams.getTracks().forEach(track=> {
+                pc.addTrack(track,localStreams)
+                console.log("pc상세정보"+JSON.stringify(pc))
+                pc.addStream(localStreams)
+                
+            })
+        }else {
+            console.log('no local stream')
+            
+        }
         return pc;
     }
    
