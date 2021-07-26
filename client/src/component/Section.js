@@ -6,7 +6,7 @@ import {Grid} from 'semantic-ui-react'
 import useMedia from '../useMedia'
 import { ThemeConsumer } from 'styled-components'
 import { useDispatch, useSelector ,shallowEqual,} from 'react-redux'
-const SERVERPATH = "https://86c15b9f682f.ngrok.io";
+const SERVERPATH = "https://4a249988bd72.ngrok.io";
 const io = socket.connect(SERVERPATH);
 
 function Section() {
@@ -57,7 +57,7 @@ function Section() {
         1
     )
 
-    let pc = new RTCPeerConnection(pcConfig)
+
 
 
 
@@ -67,6 +67,8 @@ function Section() {
                 console.log("둘다없음")
                 videolocalref.current.srcObject.getTracks()[0].stop()
                 localStream.getTracks()[0].stop()
+                createPeerConnection(tempdata.test1,tempdata.test2,io,localStream)
+                console.log("localstream 상태: "+localStream)
             }else {
                 await navigator.mediaDevices.getUserMedia({
                     video:video,
@@ -74,13 +76,8 @@ function Section() {
                 }).then((stream)=> {
                     videolocalref.current.srcObject = stream
                     localStream = stream
-
-                    localStream.getTracks().forEach(track=> {
-                        pc.addTrack(track,localStream)
-                    })
-
-
-                    
+                    createPeerConnection(tempdata.test1,tempdata.test2,io,localStream)
+                    console.log("localstream 상태: "+localStream)
                 }).catch((err)=> {
                     //console.log(err); /* handle the error */
                     //사용자가 웹캠을 가지고 있지 않은경우
@@ -108,13 +105,15 @@ function Section() {
             
         }catch(error){
             console.log(error)
+            //undefined
+            console.log("localstream 상태: "+localStream)
         }
        
     }
    
     useEffect(()=> {
         gotmedia()
-        createPeerConnection(tempdata.test1,tempdata.test2,io,localStream)
+       
         console.log(":useEffect 불림")
     },[audio,video])
     
@@ -189,19 +188,57 @@ function Section() {
             }
         })
         io.on('user_exit',data=> {
+            console.log("나간사람:"+JSON.stringify(JSON))
             pcs[data.id].close()
             delete pcs[data.id]
             setUsers(oldUsers=>oldUsers.filter(user=> user.id!==data.id))
 
         })
-            
+        console.log("-------connet 합니다----------")
+        gotconnect()
         
       
     },[])
     const createPeerConnection=(socketID,email,io,localStream)=> {
-        
+        let pc = new RTCPeerConnection(pcConfig)
         pcs = {...pcs,[socketID]:pc};
+        // setUsers(oldUsers=>[...oldUsers,{
+        //     id:socketID,
+        //     email:email,
+        //     stream:undefined
+        // }])
+        
+        // users.filter(user=>user.id!==socketID)
+  
+        // users.push({
+        //     id:socketID,
+        //     email:email,
+        //     stream:undefined
+        // })
+        if(socketID!=="" || email!=="") {
+            setUsers(oldUsers=>oldUsers.filter(user=>user.id!==socketID))
+            setUsers(oldUsers=>[...oldUsers,{
+                id:socketID,
+                email:email,
+                stream:undefined
+            }])
+        }
        
+       
+       
+        console.log("socketid:"+socketID+"email"+ email)
+        console.log("users:"+JSON.stringify(users))
+        if(localStream){
+            console.log('localstream add')
+            localStream.getTracks().forEach(track=> {
+                pc.addTrack(track,localStream)
+                console.log("pc상세정보"+JSON.stringify(pc))
+                
+            })
+        }else {
+            console.log('no local stream')
+            
+        }
         pc.onicecandidate=(e)=> {
             if(e.candidate) {
                 console.log('onicecandidate')
@@ -221,7 +258,6 @@ function Section() {
             for(let i=0; i<e.streams.length; i++){
                  console.log('e stream 테스트'+e.streams[i])
             }
-           
             setUsers(oldUsers=>oldUsers.filter(user=>user.id!==socketID))
             setUsers(oldUsers=>[...oldUsers,{
                 id:socketID,
@@ -251,8 +287,7 @@ function Section() {
        
     }
     //
-    console.log("-------connet 합니다----------")
-    gotconnect()
+ 
 
 
 
@@ -289,13 +324,18 @@ function Section() {
                     ref={videolocalref}
                     autoPlay>
                 </video>
+                    {console.log("길이"+users.length)}
                     {users.map((user, index) => {
-                        
-                        <Video
-                            key={index}
-                            email={user.email}
-                            stream={user.stream}
-                        />
+                        {console.log("users체크:"+JSON.stringify(user))}
+                        {console.log("index 체크"+index)}
+                        return (
+                            <Video
+                                key={index}
+                                email={user.email}
+                                stream={user.stream||undefined}
+                            />
+                        )
+                      
                         
                 })}
             </div>
