@@ -1,8 +1,7 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import Section from './Section'
 import Footer from './Footer'
 import Header from './Header'
-import { useDispatch, useSelector } from 'react-redux'
 
 function Home() {
     function handlecreate(data) {

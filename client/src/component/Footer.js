@@ -1,4 +1,4 @@
-import React ,{useEffect, useState}from 'react'
+import React from 'react'
 import { AiFillAudio,AiOutlineVideoCamera,AiOutlineFullscreen,AiOutlineUsergroupAdd} from "react-icons/ai";
 import './Footer.scss'
 import { BsChatSquareDots } from "react-icons/bs";

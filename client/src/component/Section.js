@@ -1,15 +1,20 @@
-import React ,{createFactory, useCallback, useEffect, useMemo, useRef,useState}from 'react'
+import React ,{ useEffect, useRef,useState}from 'react'
 import './Section.scss'
 import socket from 'socket.io-client'
 import Video from './Video/index'
 import {Grid} from 'semantic-ui-react'
 import useMedia from '../useMedia'
-import { ThemeConsumer } from 'styled-components'
-import { useDispatch, useSelector ,shallowEqual,} from 'react-redux'
-const SERVERPATH = "https://4a249988bd72.ngrok.io";
+import { useSelector} from 'react-redux'
+const SERVERPATH = "https://63114c589694.ngrok.io";
 const io = socket.connect(SERVERPATH);
+let tempdata= {
+    test1:'',
+    test2:'',
+    test3:''
 
+};
 function Section() {
+    
     //video audio 상태관리
     const {video,audio}= useSelector((state)=> ({
         video:state.toggleVideoAudio.video,
@@ -29,11 +34,7 @@ function Section() {
     var videoremoteref = useRef(null)
     let localStream;
     let len;
-    let tempdata= {
-        test1:'',
-        test2:''
-
-    };
+    
   
     // //pcConfig에는 stun turn 서버를 적게되는데 rtc 중계를 끊어지는 걸 대비한
     // // 임시서버이다 https://gist.github.com/yetithefoot/7592580
@@ -64,10 +65,11 @@ function Section() {
     const gotmedia= async() => {
         try {
             if(video ===false && audio ===false){
-                console.log("둘다없음")
+               
                 videolocalref.current.srcObject.getTracks()[0].stop()
                 localStream.getTracks()[0].stop()
-                createPeerConnection(tempdata.test1,tempdata.test2,io,localStream)
+             
+                
                 console.log("localstream 상태: "+localStream)
             }else {
                 await navigator.mediaDevices.getUserMedia({
@@ -76,24 +78,27 @@ function Section() {
                 }).then((stream)=> {
                     videolocalref.current.srcObject = stream
                     localStream = stream
-                    createPeerConnection(tempdata.test1,tempdata.test2,io,localStream)
-                    console.log("localstream 상태: "+localStream)
+                    // gotconnect()
+                    
+                    gotconnect()
+                
+                    console.log("성공 시 localstream 상태: "+Object.toString(stream))
                 }).catch((err)=> {
                     //console.log(err); /* handle the error */
                     //사용자가 웹캠을 가지고 있지 않은경우
-                    if (err.name == "NotFoundError" || err.name == "DevicesNotFoundError") {
+                    if (err.name === "NotFoundError" || err.name === "DevicesNotFoundError") {
                         alert("캠을 찾을 수 없습니다.")
                     //다른곳에서 웹캠이나 마이크에 엑세스를 이미 하고 있는 경우
-                    } else if (err.name == "NotReadableError" || err.name == "TrackStartError") {
+                    } else if (err.name === "NotReadableError" || err.name === "TrackStartError") {
                         //webcam or mic are already in use 
                         alert("다른 곳에서 마이크 또는 웹캠을 사용중입니다")
-                    } else if (err.name == "OverconstrainedError" || err.name == "ConstraintNotSatisfiedError") {
+                    } else if (err.name === "OverconstrainedError" || err.name === "ConstraintNotSatisfiedError") {
                         //-----------------????-------------------
                         //사용자가 웹캠또는 마이크에 액세스를 거부 한 경우
-                    } else if (err.name == "NotAllowedError" || err.name == "PermissionDeniedError") {
+                    } else if (err.name === "NotAllowedError" || err.name ==="PermissionDeniedError") {
                         //둘다 false로 되어있는 경우
                         alert('카메라 또는 마이크를 탐색할 수 없습니다.')
-                    } else if (err.name == "TypeError" || err.name == "TypeError") {
+                    } else if (err.name === "TypeError" || err.name === "TypeError") {
                         //alert대신 custom alert 하는게 나을 것 같다. lotti 라던가
                         alert('비디오와 마이크가 꺼져있습니다')
 
@@ -114,20 +119,25 @@ function Section() {
     useEffect(()=> {
         gotmedia()
        
-        console.log(":useEffect 불림")
+   
     },[audio,video])
     
     useEffect(()=> {
         io.on('all_users',(allUsers)=> {
         
             len = allUsers.length
-            console.log("자신을 제외한 users 숫자:"+len)
+            console.log("allUsers :"+JSON.stringify(allUsers))
+            
             for(let i=0; i<len; i++){
                 console.log("현재 방의 참가자는 :"+allUsers[i].id)
                 console.log('io의 아이디'+io.id)
+                tempdata  = {
+                    test1:allUsers[i].id,
+                    test2:allUsers[i].email
+                }
                 createPeerConnection(allUsers[i].id,allUsers[i].email,io,localStream)
                 let pc = pcs[allUsers[i].id]
-                console.log("pc출력:"+JSON.stringify(pc))
+                
                 if(pc) {
                     pc.createOffer({offerToReceiveAudio:true,offerToReceiveVideo:true})
                     .then(sdp=> {
@@ -147,11 +157,9 @@ function Section() {
         })
         io.on('getOffer',(data)=> {
             console.log('get offer')
+            console.log("offer쪽 localStream"+localStream)
             createPeerConnection(data.offerSendId,data.offerSendEmail,io,localStream)
-            tempdata  = {
-                test1:data.offerSendId,
-                test2:data.offerSendEmail
-            }
+           
             let pc = pcs[data.offerSendId]
             if(pc) {
                 pc.setRemoteDescription(new RTCSessionDescription(data.sdp)).then(()=> {
@@ -188,47 +196,50 @@ function Section() {
             }
         })
         io.on('user_exit',data=> {
-            console.log("나간사람:"+JSON.stringify(JSON))
+        
             pcs[data.id].close()
             delete pcs[data.id]
             setUsers(oldUsers=>oldUsers.filter(user=> user.id!==data.id))
 
         })
-        console.log("-------connet 합니다----------")
-        gotconnect()
+        
+       
         
       
     },[])
     const createPeerConnection=(socketID,email,io,localStreams)=> {
-        console.log("createPeer 스트림 체크:"+localStreams)
         let pc = new RTCPeerConnection(pcConfig)
-        pcs = {...pcs,[socketID]:pc};
-        // setUsers(oldUsers=>[...oldUsers,{
-        //     id:socketID,
-        //     email:email,
-        //     stream:undefined
-        // }])
+        if(localStreams){
+            console.log('localstreams add')
+    
         
-        // users.filter(user=>user.id!==socketID)
-  
-        // users.push({
-        //     id:socketID,
-        //     email:email,
-        //     stream:undefined
-        // })
+            localStreams.getTracks().forEach(track=> {
+               
+                pc.addTrack(track,localStreams)
+                
+            })
+           
+        }else {
+            console.log('no local stream')
+            
+        }
+        console.log("로컬스트림:!!"+localStreams)
+        
+        pcs = {...pcs,[socketID]:pc};
+
         if(socketID!=="" || email!=="") {
+            
             setUsers(oldUsers=>oldUsers.filter(user=>user.id!==socketID))
             setUsers(oldUsers=>[...oldUsers,{
                 id:socketID,
                 email:email,
                 stream:localStreams
             }])
+            console.log(users.stream)
         }
        
        
-       
-        console.log("socketid:"+socketID+"email"+ email)
-        console.log("users:"+JSON.stringify(users))
+
      
         pc.onicecandidate=(e)=> {
             if(e.candidate) {
@@ -243,10 +254,9 @@ function Section() {
         pc.oniceconnectionstatechange=(e)=> {
             console.log(e)
         }
-        pc.ontrack=(e)=> {
+       pc.ontrack=e=> {
             console.log('ontrack success')
-            console.log('e stream의 길이:'+e.streams.length)
-           
+            console.log("aaaaaaaa"+e.streams.length)
             setUsers(oldUsers=>oldUsers.filter(user=>user.id!==socketID))
             setUsers(oldUsers=>[...oldUsers,{
                 id:socketID,
@@ -254,52 +264,26 @@ function Section() {
                 stream:e.streams[0]
             }])
         }
-        if(localStreams){
-            console.log('localstreams add')
-            localStreams.getTracks().forEach(track=> {
-                pc.addTrack(track,localStreams)
-                console.log("pc상세정보"+JSON.stringify(pc))
-                pc.addStream(localStreams)
-                
-            })
-        }else {
-            console.log('no local stream')
-            
-        }
+       
         return pc;
     }
-   
+    createPeerConnection("","",io,"")
     const gotconnect = ()=> {
         try {
            
             io.emit('join room',{'room':'1234','email':'sample@naver.com'})
-            console.log('joinroom 성공?')
+       
         }catch(error) {
             console.log(error)
         }
        
     }
-    //
+
  
 
 
 
 
-    // var gotStream
-    // gotStream = async()=> {
-    //     try {
-    //         var stream = await navigator.mediaDevices.getUserMedia(mediaStreamConstraints)
-    //         .catch(e => console.log('getUserMedia() error: ', e));
-    //         //pc에 넣어주기 위한 변수
-    //         localStream = stream
-    //         //ref 를 통해 바로 화면에 보여줌
-    //         videolocalref.current.srcObject = stream
-    //         io.emit('create or join',roomname)
-        
-    //     } catch(err) {
-    //         console.log(err)
-    //     }
-    // }
 
     return (
         <>
