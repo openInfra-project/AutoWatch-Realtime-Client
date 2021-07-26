@@ -73,7 +73,7 @@ function Section(props) {
             localStream = stream
             videolocalref.current.srcObject = stream
             
-            gotconnect()
+            io.emit('join room',{'room':'1234','email':'sample@naver.com'})
             
             
         
@@ -185,68 +185,61 @@ function Section(props) {
         
       
     },[])
-    const createPeerConnection=(socketID,email,io,localStreams)=> {
-        let pc = new RTCPeerConnection(pcConfig)
-        if(localStreams){
-            console.log('localstreams add')
+    const createPeerConnection = (socketID, email, newSocket, localStream)=> {
+
+        let pc = new RTCPeerConnection(pcConfig);
     
-        
-            localStreams.getTracks().forEach(track=> {
-               
-                pc.addTrack(track,localStreams)
-                
-            })
-            
-           
-        }else {
-            console.log('no local stream')
-            
+        // add pc to peerConnections object
+        pcs = { ...pcs, [socketID]: pc };
+    
+        pc.onicecandidate = (e) => {
+          if (e.candidate) {
+            console.log('onicecandidate');
+            newSocket.emit('candidate', {
+              candidate: e.candidate,
+              candidateSendID: newSocket.id,
+              candidateReceiveID: socketID
+            });
+          }
         }
-        console.log("로컬스트림:!!"+localStreams)
-        
-        pcs = {...pcs,[socketID]:pc};
-
-        if(socketID!=="" || email!=="") {
-            
-            setUsers(oldUsers=>oldUsers.filter(user=>user.id!==socketID))
-            setUsers(oldUsers=>[...oldUsers,{
-                id:socketID,
-                email:email,
-                stream:localStreams
-            }])
-            console.log(users.stream)
+    
+        pc.oniceconnectionstatechange = (e) => {
+          console.log(e);
         }
-       
-       
-
-     
-        pc.onicecandidate=(e)=> {
-            if(e.candidate) {
-                console.log('onicecandidate')
-                io.emit('candidate',{
-                    candidate:e.candidate,
-                    candidateSendID:io.id,
-                    candidateReceiveID:socketID
-                })
-            }
+    
+        pc.ontrack = (e) => {
+          console.log('ontrack success');
+          setUsers(oldUsers => oldUsers.filter(user => user.id !== socketID));
+          setUsers(oldUsers => [...oldUsers, {
+            id: socketID,
+            email: email,
+            stream: e.streams[0]
+          }]);
         }
-        pc.oniceconnectionstatechange=(e)=> {
-            console.log(e)
+    
+        if (localStream) {
+          console.log('localstream add');
+          localStream.getTracks().forEach(track => {
+            pc.addTrack(track, localStream);
+          });
+        } else {
+          console.log('no local stream');
         }
-      
-       
+    
+        // return pc
         return pc;
-    }
-    const gotconnect = ()=> {
-        try {
+    
+      }
+    // const gotconnect = ()=> {
+    //     try {
            
-            io.emit('join room',{'room':'1234','email':'sample@naver.com'})
+    //         io.emit('join room',{'room':'1234','email':'sample@naver.com'})
        
-        }catch(error) {
-            console.log(error)
-        }
+    //     }catch(error) {
+    //         console.log(error)
+    //     }
        
-    }
+    // }
 
  
 
