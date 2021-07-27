@@ -50,25 +50,40 @@ function Home() {
         dispatch(toggleVideoAudio(setting))
      
     }
+    const onClickChat=()=> {
+  
+        
+    }
     return (
         <>
-            <Header />
-            <Section setting = {setting}/>       
-            <div className="footer">
-               <div className="menu">
-                   <p className="user_name">김준영</p>
-                    <div className="menu_icon">
-                        <AiFillAudio onClick={onClickAudio} className="icon audio"/>
-                         <AiOutlineVideoCamera onClick={onClickVideo} className="icon video" />
-                         <AiOutlineUsergroupAdd className="icon usergroupadd"/>
-                         <BsChatSquareDots className="icon chat"/>
-                         <AiOutlineFullscreen className="icon fullscreen"/>
+            <div className="HomeSection">
+                <Header />
+                <Section setting = {setting}/>       
+                <div className="footer">
+                    <div className="menu">
+                        <p className="user_name">김준영</p>
+                            <div className="menu_icon">
+                                <AiFillAudio onClick={onClickAudio} className="icon audio"/>
+                                <AiOutlineVideoCamera onClick={onClickVideo} className="icon video" />
+                                <AiOutlineUsergroupAdd className="icon usergroupadd"/>
+                             
+                                      
+                                <BsChatSquareDots className="icon" onClick={onClickChat}>
+                                    
+                                </BsChatSquareDots>
 
-                         
-                    </div>
-                    
-               </div>
-           </div>
+                                
+                                <AiOutlineFullscreen className="icon fullscreen"/>
+
+                                
+                            </div>
+                                
+                        </div>
+                </div>
+            
+            </div>
+            
+            
         </>
     )
 }

@@ -5,7 +5,7 @@ import Video from './Video/index'
 import {Grid} from 'semantic-ui-react'
 import useMedia from '../useMedia'
 import { useSelector} from 'react-redux'
-const SERVERPATH = "https://ab606cad236c.ngrok.io";
+const SERVERPATH = "http://localhost:4000";
 const io = socket.connect(SERVERPATH);
 let tempdata= {
     test1:'',
@@ -66,41 +66,58 @@ function Section(props) {
   
     //footer부분을 home으로 다 옮기고
     //비디오와 오디오를 props로 section으로 보내주기 !
-    useEffect(()=> {
+    // if(props.setting.video ===false && props.setting.audio ===false) {
+    //     try {
+    //         videolocalref.current.srcObject.getTracks()[0].stop()
+    //         localStream.getTracks()[0].stop()
+    //     }catch(err) {
+    //         console.log(err)
+    //     }
+      
+    // }else {
         navigator.mediaDevices.getUserMedia(
-           props.setting
-        ).then((stream)=> {
-            localStream = stream
-            videolocalref.current.srcObject = stream
+            props.setting
+         ).then((stream)=> {
+             console.log(stream.getTracks())
+             localStream = stream
+             videolocalref.current.srcObject = stream
+             
+             io.emit('join room',{'room':'1234','email':'sample@naver.com'})
             
-            io.emit('join room',{'room':'1234','email':'sample@naver.com'})
-            
-            
+             
+         
+             console.log("성공 시 localstream 상태: "+Object.toString(stream))
+         }).catch((err)=> {
+             //console.log(err); /* handle the error */
+             //사용자가 웹캠을 가지고 있지 않은경우
+                if (err.name === "NotFoundError" || err.name === "DevicesNotFoundError") {
+                    alert("캠을 찾을 수 없습니다.")
+                //다른곳에서 웹캠이나 마이크에 엑세스를 이미 하고 있는 경우
+                } else if (err.name === "NotReadableError" || err.name === "TrackStartError") {
+                    //webcam or mic are already in use 
+                    alert("다른 곳에서 마이크 또는 웹캠을 사용중입니다")
+                } else if (err.name === "OverconstrainedError" || err.name === "ConstraintNotSatisfiedError") {
+                    //-----------------????-------------------
+                    //사용자가 웹캠또는 마이크에 액세스를 거부 한 경우
+                } else if (err.name === "NotAllowedError" || err.name ==="PermissionDeniedError") {
+                    //둘다 false로 되어있는 경우
+                    alert('카메라 또는 마이크를 탐색할 수 없습니다.')
+                } else if (err.name === "TypeError" || err.name === "TypeError") {
+                    //alert대신 custom alert 하는게 나을 것 같다. lotti 라던가
+                    alert('비디오와 마이크가 꺼져있습니다')
+                    console.log("aa"+localStream)
+                    
+                
         
-            console.log("성공 시 localstream 상태: "+Object.toString(stream))
-        }).catch((err)=> {
-            //console.log(err); /* handle the error */
-            //사용자가 웹캠을 가지고 있지 않은경우
-            if (err.name === "NotFoundError" || err.name === "DevicesNotFoundError") {
-                alert("캠을 찾을 수 없습니다.")
-            //다른곳에서 웹캠이나 마이크에 엑세스를 이미 하고 있는 경우
-            } else if (err.name === "NotReadableError" || err.name === "TrackStartError") {
-                //webcam or mic are already in use 
-                alert("다른 곳에서 마이크 또는 웹캠을 사용중입니다")
-            } else if (err.name === "OverconstrainedError" || err.name === "ConstraintNotSatisfiedError") {
-                //-----------------????-------------------
-                //사용자가 웹캠또는 마이크에 액세스를 거부 한 경우
-            } else if (err.name === "NotAllowedError" || err.name ==="PermissionDeniedError") {
-                //둘다 false로 되어있는 경우
-                alert('카메라 또는 마이크를 탐색할 수 없습니다.')
-            } else if (err.name === "TypeError" || err.name === "TypeError") {
-                //alert대신 custom alert 하는게 나을 것 같다. lotti 라던가
-                alert('비디오와 마이크가 꺼져있습니다')
-    
-            } else {
-                //other errors 
-            }
-        })
+                } else {
+                    //other errors 
+                }
+         })
+    // }
+  
+    useEffect(()=> {
+
+        
         io.on('all_users',(allUsers)=> {
         
             len = allUsers.length
