@@ -66,15 +66,15 @@ function Section(props) {
   
     //footer부분을 home으로 다 옮기고
     //비디오와 오디오를 props로 section으로 보내주기 !
-    // if(props.setting.video ===false && props.setting.audio ===false) {
-    //     try {
-    //         videolocalref.current.srcObject.getTracks()[0].stop()
-    //         localStream.getTracks()[0].stop()
-    //     }catch(err) {
-    //         console.log(err)
-    //     }
+    if(props.setting.video ===false && props.setting.audio ===false) {
+        try {
+            videolocalref.current.srcObject.getTracks()[0].stop()
+            localStream.getTracks()[0].stop()
+        }catch(err) {
+            console.log(err)
+        }
       
-    // }else {
+    }else {
         navigator.mediaDevices.getUserMedia(
             props.setting
          ).then((stream)=> {
@@ -113,7 +113,7 @@ function Section(props) {
                     //other errors 
                 }
          })
-    // }
+    }
   
     useEffect(()=> {
 
