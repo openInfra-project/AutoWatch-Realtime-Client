@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import Section from './Section'
+import Section from './SectionTemplate/Section'
 import Header from './Header'
 import './Home.scss'
 import { AiFillAudio,AiOutlineVideoCamera,AiOutlineFullscreen,AiOutlineUsergroupAdd} from "react-icons/ai";
@@ -57,7 +57,7 @@ function Home() {
     return (
         <>
             <div className="HomeSection">
-                <Header />
+             
                 <Section setting = {setting}/>       
                 <div className="footer">
                     <div className="menu">

@@ -1,9 +1,9 @@
 import React ,{ useEffect, useRef,useState}from 'react'
 import './Section.scss'
 import socket from 'socket.io-client'
-import Video from './Video/index'
+import Video from '../VideoTemplate/index'
 import {Grid} from 'semantic-ui-react'
-import useMedia from '../useMedia'
+import useMedia from '../../useMedia'
 import { useSelector} from 'react-redux'
 const SERVERPATH = "https://a9cdd969c4aa.ngrok.io";
 const io = socket.connect(SERVERPATH);
@@ -271,15 +271,11 @@ function Section(props) {
     return (
         <>
 
-            <div>
+            <div className="SectionContainer">
                 
                 <video
-                    style={{
-                    width: 240,
-                    height: 240,
-                    margin: 5,
-                    backgroundColor: 'black'
-                    }}
+                    className="video"
+                  
                     muted
                     ref={videolocalref}
                     autoPlay>
