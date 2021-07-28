@@ -1,9 +1,14 @@
+@import '../style/main.scss';
+@import '../style//lib/mixins/mixin';
+
 .HomeSection {
     margin: 0;
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
     height: 100%;
+    background-color:#202124;
+    
 }
 
 
@@ -12,7 +17,7 @@
 
 
 .footer {
-    background-color: #4277b2;
+    
     display: flex;
     align-items: center;
     bottom: 0;
@@ -23,12 +28,17 @@
     width:100vw;
     height: 4rem;
 }
+
 .menu {
     width: 100%;
     margin-left: 0.5rem;
     display: flex;
     align-items: center;
     justify-content: flex-start;
+    .user_name {
+        font-size:18px;
+        color:white;
+    }
     .menu_icon {
         width: 100%;
         margin-left: 0.5rem;
@@ -36,14 +46,35 @@
         align-items: center;
         justify-content: space-around;
         
+        
     }
-    .icon {
-        width:32px;
-        height:32px;
+    .circleIcon {
+        display:flex;
+        justify-content: center;
+        align-items: center;
+        width:4rem;
+        height:4rem;
+        border-radius: 50%;
         cursor: pointer;
-        background-color: #4277b2;
-        :hover{
-            background-color: black;
+        background-color: rgba(0, 0, 0, 0.363);
+        &:hover {
+            background-color: #1a1e2c1a;
+        }
+        .icon {
+            width:50%;
+            height:50%;
+            color:white;
+           
+         
         }
     }
+    
+   
+}
+@include mobile {
+    .user_name {
+        font-size:18px;
+        color: red;
+    }
+   
 }

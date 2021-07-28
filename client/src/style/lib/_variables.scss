@@ -5,7 +5,9 @@ $x-large-w: 1200px;
 $xx-large-w: 1400px;
 $wide-w: 1600px;
 $x-wide-w: 1920px;
-
+$breakpoint-mobile: 335px;
+$breakpoint-tablet: 758px;
+$breakpoint-desktop: 1024px;
 $breakpoints: (
   small: $small-w,
   medium: $medium-w,

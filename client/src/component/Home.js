@@ -14,16 +14,14 @@ function Home() {
         video:true,
         audio:true
     })
+    const [backgroundcolor,Setbackgroundcolor] = useState({
+        color:'rgba(0, 0, 0, 0.363)'
+    })
     function handlecreate(data) {
         console.log("홈 데이터"+JSON.stringify(data))
     }
-    const onClickVideo = () => {
-        // Setsetting((previousState)=> {
-        //     return {
-        //         ...previousState,
-        //         video : !(previousState.video)
-        //     }
-        // })
+    const onClickVideo = (e) => {
+        onClickChangeBackgroundColor(e)
         Setsetting({
             ...setting,
             video:!setting.video
@@ -34,13 +32,8 @@ function Home() {
        
         
     }
-    const onClickAudio = ()=> {
-        // Setsetting((previousState)=> {
-        //     return {
-        //         ...previousState,
-        //         audio : !(previousState.audio)
-        //     }
-        // })
+    const onClickAudio = (e)=> {
+        onClickChangeBackgroundColor(e)
         Setsetting({
             ...setting,
             audio:!setting.audio
@@ -48,11 +41,26 @@ function Home() {
         console.log("오디오 활성화 상태:"+setting.audio)
         //audio상태를 전부 store에 저장
         dispatch(toggleVideoAudio(setting))
-     
-    }
-    const onClickChat=()=> {
-  
         
+    }
+    const onClickChat=(e)=> {
+        onClickChangeBackgroundColor(e)
+        
+    }
+    const onClickChangeBackgroundColor = (e)=> {
+        
+        if(e.currentTarget.style.backgroundColor==='rgb(8, 142, 195)'){
+            e.currentTarget.style.backgroundColor = null
+        }else {
+             e.currentTarget.style.backgroundColor = 'rgb(8, 142, 195)'
+        }
+       
+    }
+    const onClickFullScreen=(e)=> {
+        onClickChangeBackgroundColor(e)
+    }
+    const onClickgroupadd=(e)=> {
+        onClickChangeBackgroundColor(e)
     }
     return (
         <>
@@ -63,18 +71,25 @@ function Home() {
                     <div className="menu">
                         <p className="user_name">김준영</p>
                             <div className="menu_icon">
-                                <AiFillAudio onClick={onClickAudio} className="icon audio"/>
-                                <AiOutlineVideoCamera onClick={onClickVideo} className="icon video" />
-                                <AiOutlineUsergroupAdd className="icon usergroupadd"/>
+                                <div className="circleIcon" onClick={e=>onClickAudio(e)}>
+                                    <AiFillAudio  className="icon audio"/>
+                                </div>
+                                <div className="circleIcon" onClick={e=>onClickVideo(e)}>
+                                     <AiOutlineVideoCamera  className="icon video" />
+                                </div>
+                                <div className="circleIcon" onClick={onClickgroupadd}>
+                                     <AiOutlineUsergroupAdd className="icon usergroupadd"/>
+                                </div>
+                               
                              
-                                      
-                                <BsChatSquareDots className="icon" onClick={onClickChat}>
-                                    
-                                </BsChatSquareDots>
-
+                                <div className="circleIcon" onClick={onClickChat}>
+                                    <BsChatSquareDots className="icon" />
+                                </div>
                                 
-                                <AiOutlineFullscreen className="icon fullscreen"/>
+                                <div className="circleIcon" onClick={onClickFullScreen}>
+                                      <AiOutlineFullscreen className="icon fullscreen"/>
 
+                                </div>      
                                 
                             </div>
                                 
