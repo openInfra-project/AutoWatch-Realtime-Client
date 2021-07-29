@@ -5,7 +5,7 @@ import Video from '../VideoTemplate/index'
 import {Grid} from 'semantic-ui-react'
 import useMedia from '../../useMedia'
 import { useSelector} from 'react-redux'
-const SERVERPATH = "https://118.67.131.138:32218/";
+const SERVERPATH = "https://118.67.131.138:32218";
 const io = socket.connect(SERVERPATH);
 let tempdata= {
     test1:'',
