@@ -11,10 +11,18 @@ export const toggleVideoAudio = (data)=> {
 export const fetchGetInform = async() => {
     Axios.defaults.xsrfCookieName = 'csrftoken'
     Axios.defaults.xsrfHeaderName = 'X-CSRFToken'
-    const Data = await Axios.post('django 서버 주소')
-    console.log(Data)
+    const Data = {
+        roomname:'1234',
+        useremail:'junyoung@naver.com',
+        nickname:'김준영',
+        roomtype:0
+    }
+    //await Axios.post('http://localhost:4000')
+    
+    // console.log(Data)
+
     return {
         type:"FETCH_GET_INFORM",
-        payload : Data.data
+        payload : Data
     }
 }

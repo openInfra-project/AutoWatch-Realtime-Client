@@ -5,7 +5,7 @@ import Video from '../VideoTemplate/index'
 import {Grid} from 'semantic-ui-react'
 import useMedia from '../../useMedia'
 import { useSelector} from 'react-redux'
-const SERVERPATH = "https://a9cdd969c4aa.ngrok.io";
+const SERVERPATH = "https://118.67.131.138:32218/";
 const io = socket.connect(SERVERPATH);
 let tempdata= {
     test1:'',
