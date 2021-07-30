@@ -67,7 +67,9 @@ const Gaze=()=> {
                     gaze.style.top = docy + "px";
                 
                     setInnerText('log_div',gaze.style.left)
-                    // setInnerText('log_div2',gaze.style.top)
+                    setInnerText('log_div2',gaze.style.top)
+                    setInnerText('log_div3',screen.width)
+                    setInnerText('log_div4',screen.height)
                 
                 
                 
@@ -78,6 +80,14 @@ const Gaze=()=> {
                     else {
                         if (gaze.style.display == 'none')
                             gaze.style.display = 'block';
+                        // 예측가능 gaze일때 (gaze==0)
+                        setInnerText('log_div5','HERE')
+
+                        if (-80 > docx || docx > 1280 || -80 > docy || docy > 720 ){
+                            setInnerText('log_div6','OUT')
+                        }else{
+                            setInnerText('log_div6','IN')
+                        }
                     }
                 }
                 
@@ -119,8 +129,12 @@ const Gaze=()=> {
         
     return (
         <>
-          <div id="log_div"></div>
+            <div id="log_div"></div>
             <div id="log_div2"></div>
+            <div id="log_div3"></div>
+            <div id="log_div4"></div>
+            <div id="log_div5"></div>
+            <div id="log_div6"></div>
             <input id="et2" type="checkbox" ></input>
             <label id="et2_label">GazeCloudAPI</label>
             <div id="gazecloudopts">
