@@ -1,12 +1,17 @@
 import React, { useEffect } from 'react'
 import './Gaze.scss'
-import { ReactDOM  } from 'react';
+// import { ReactDOM  } from 'react';
 const Gaze=()=> {
     let success = "fail"
     useEffect(() => {
         const script = document.createElement("script");
         
-        script.innerHTML = `         
+        script.innerHTML = `
+                var calibrated = false;
+                var gc_started = false;
+                var hm_left = 0;
+                var hm_top = 0;
+                var hm_created = false;          
                 window.onload = async function () {
 
                     //////set callbacks for GazeCloudAPI/////////
@@ -20,7 +25,7 @@ const Gaze=()=> {
                     GazeCloudAPI.OnResult = PlotGaze;
                     
                     setInnerText('log_div','start Hyewon')
-                    document.getElementById("gc_start").onclick =  GazeCloudAPI.StartEyeTracking;
+                    document.getElementById("gc_start").onclick =  GazeCloudAPI.StartEyeTracking();
                     document.getElementById("gc_stop").onclick =  GazeCloudAPI.StopEyeTracking();
                     document.getElementById("et2").onchange =  changeGC;
                 }
@@ -43,6 +48,7 @@ const Gaze=()=> {
                 
                 
                 function PlotGaze(GazeData) {
+
                     /*
                         GazeData.state // 0: valid gaze data; -1 : face tracking lost, 1 : gaze uncalibrated
                         GazeData.docX // gaze x in document coordinates
@@ -90,9 +96,6 @@ const Gaze=()=> {
                     element.innerText 
                       = log ;
                   } 
-                      
-            
-       
        `;
         script.type = "text/javascript";
         script.async = "async";
@@ -101,7 +104,19 @@ const Gaze=()=> {
         console.log(success)
       });
    
+    const gazeStyle={
+        position: "absolue",
+        display:"none",
+        width:"100px",
+        height:"100px",
+        'border-radius':"50%",
+        border: "solid 2px rgba(255, 255,255, .2)",
+        'box-shadow': " 0 0 100px 3px rgba(125, 125,125, .5)",
+        'pointer-events': "none",
+        'z-index': "999999",
+    }
 
+        
     return (
         <>
           <div id="log_div"></div>
@@ -113,12 +128,7 @@ const Gaze=()=> {
                 <button id="gc_stop" type="button" >Stop tracking</button>
             </div>
 
-
-            <div id="gaze"
-               >
-            </div>
-            <div id="container">
-                <img src='regression.jpg' />
+            <div id="gaze"  style={gazeStyle}>            
             </div>
         </>
     )
