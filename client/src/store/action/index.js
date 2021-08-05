@@ -15,6 +15,8 @@ export const fetchGetInform = async() => {
         roomname:'1234',
         useremail:'junyoung@naver.com',
         nickname:'김준영',
+        session:"",
+        userimage:"",
         roomtype:0
     }
     // await Axios.post('http://localhost:4000/~~').then(()=> {

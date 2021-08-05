@@ -3,15 +3,11 @@ import './Section.scss'
 import Video from '../VideoTemplate/index'
 import {Grid} from 'semantic-ui-react'
 import useMedia from '../../useMedia'
-import { useSelector} from 'react-redux'
-let tempdata= {
-    test1:'',
-    test2:'',
-    test3:''
+import { useSelector} from 'react-redux';
 
-};
 function Section(props) {
     const io = props.io
+    const userdata = props.userdata
     console.log(props.setting)
     //video audio 상태관리
     // const {video,audio}= useSelector((state)=> ({
@@ -81,7 +77,12 @@ function Section(props) {
                  localStream = stream
                  videolocalref.current.srcObject = stream
                  
-                 io.emit('join room',{'room':'1234','email':'sample@naver.com'})
+                io.emit('join room',{
+                    'room':userdata.roomname,
+                    'email':userdata.useremail,
+                    'nickname':userdata.nickname,
+                    'roomtype':userdata.roomtype
+                })
                 
                  
              
@@ -128,11 +129,8 @@ function Section(props) {
             for(let i=0; i<len; i++){
                 console.log("현재 방의 참가자는 :"+allUsers[i].id)
                 console.log('io의 아이디'+io.id)
-                tempdata  = {
-                    test1:allUsers[i].id,
-                    test2:allUsers[i].email
-                }
-                createPeerConnection(allUsers[i].id,allUsers[i].email,io,localStream)
+          
+                createPeerConnection(allUsers[i].id,allUsers[i].email,allUsers[i].nickname,io,localStream)
                 let pc = pcs[allUsers[i].id]
                 
                 if(pc) {
@@ -143,8 +141,10 @@ function Section(props) {
                         io.emit('offer',{
                             sdp:sdp,
                             offerSendId:io.id,
-                            offerSendEmail:'offerSendSample@sample.com',
+                            offerSendEmail:allUsers[i].email,
+                            offerSendNickname:allUsers[i].nickname,
                             offerReciveID:allUsers[i].id
+                        
                         })
                     }).catch(error=> {
                         console.log(error)
@@ -155,7 +155,7 @@ function Section(props) {
         io.on('getOffer',(data)=> {
             console.log('get offer')
             console.log("offer쪽 localStream"+localStream)
-            createPeerConnection(data.offerSendId,data.offerSendEmail,io,localStream)
+            createPeerConnection(data.offerSendId,data.offerSendEmail,data.offerSendnickname,io,localStream)
            
             let pc = pcs[data.offerSendId]
             if(pc) {
@@ -169,6 +169,7 @@ function Section(props) {
                             sdp:sdp,
                             answerSendID:io.id,
                             answerREceiveID:data.offerSendId
+
                         })
                     }).catch(error=> {
                         console.log(error)
@@ -204,7 +205,7 @@ function Section(props) {
         
       
     },[])
-    const createPeerConnection = (socketID, email, newSocket, localStream)=> {
+    const createPeerConnection = (socketID, email,nickname ,newSocket, localStream)=> {
 
         let pc = new RTCPeerConnection(pcConfig);
     
@@ -232,6 +233,7 @@ function Section(props) {
           setUsers(oldUsers => [...oldUsers, {
             id: socketID,
             email: email,
+            nickname:nickname,
             stream: e.streams[0]
           }]);
         }
@@ -278,20 +280,23 @@ function Section(props) {
                     ref={videolocalref}
                     autoPlay>
                 </video>
-                    {console.log("길이"+users.length)}
-                    {users.map((user, index) => {
-                        {console.log("users체크:"+JSON.stringify(user))}
-                        {console.log("index 체크"+index)}
-                        return (
-                            <Video
-                                key={index}
-                                email={user.email}
-                                stream={user.stream}
-                            />
-                        )
-                      
+                {console.log("길이"+users.length)}
+                <Grid divided = "vertically">
+                    <Grid.Row columns = {columnCount}>
+                        {users.map((user,index)=> {
+                            return (
+                           
+                                <Video
+                                    key={index}
+                                    email={user.email}
+                                    nickname = {user.nickname}
+                                    stream={user.stream}
+                                />
                         
-                })}
+                            )
+                        })}
+                    </Grid.Row>
+                </Grid>     
             </div>
         
                 

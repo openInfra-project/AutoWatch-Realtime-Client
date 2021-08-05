@@ -7,7 +7,7 @@ function Router() {
     return (
         <BrowserRouter>
             <Switch>
-                <Route exact path="/" component={Home}/>
+                <Route path="/home/:id" component={Home}/>
                 <Route path ="/rendering" component={Render} />
                 <Route path ="/gaze" component={Gaze}/>
             </Switch>

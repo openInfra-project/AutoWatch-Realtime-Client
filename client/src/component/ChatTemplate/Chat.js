@@ -4,29 +4,7 @@ import ChatUser from '../ChatUserTemplate/ChatUser'
 import TextSizeAutoSize from 'react-textarea-autosize'
 import {AiOutlineArrowRight} from 'react-icons/ai'
 var chatdata= ""
-// function Chatinput() {
-//     const [chatinput,Setchatinput] = useState({
-//         input : ""
-//     })
-//     const {input} = chatinput
-//     const onChange = (e)=> {
-//         e.preventDefault()
-//         Setchatinput({
-//             input:e.target.value
-//         })
-//     }
-//     chatdata = input
-//     return (
-//         <>
-//             <input  
-//             onChange={e=>onChange(e)}
-//             className = "textarea_input" 
-//             value = {input}
-//             type ="text" 
-//             placeholder="메세지를 입력하세요" />
-//         </>
-//     )
-// }
+// user data의 imageurl을 넣기
 function Chat(props) {
     const io = props.io
     const {roomname,useremail,nickname,roomtype} = props.userdata
@@ -80,6 +58,12 @@ function Chat(props) {
            
             <div className="inbox" style={{animationName:props.setting.toString()||"false"}}>
                 <aside >
+                    {/* 
+                        //userdata에 따라 chatuser갯수를 변경한다.
+                        props.userdata.map((data,index)=> {
+                            <ChatUser key= {index} username={data.nickname} src={data.userimage || "여기 기본 사진 url 가져다 놓기"}/>
+                        })
+                    */}
                     <ul ng-controller="chatCtrl as chat" className="ng-scope">
                         <ChatUser username="김준영" src="https://imgflip.com/s/meme/Futurama-Leela.jpg"/>
                         <ChatUser username="황한식" src="https://imgflip.com/s/meme/Futurama-Leela.jpg"/>

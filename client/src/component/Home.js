@@ -93,7 +93,7 @@ function Home() {
         <>
             <div className="HomeSection">
              
-                <Section setting = {setting} io = {io}/> 
+                <Section setting = {setting} io = {io} userdata = {userdata}/> 
                 <Chat  setting = {othersetting.chat} io = {io} userdata = {userdata}/>      
                 <div className="footer">
                     <div className="menu">

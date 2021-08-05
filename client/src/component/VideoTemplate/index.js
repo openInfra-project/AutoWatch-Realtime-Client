@@ -24,7 +24,7 @@ const UserLabel = Styled.p`
 
 
 
-function Video({email, stream, muted}) {
+function Video({email, nickname,stream, muted}) {
     const ref = useRef(null);
     const [isMuted, setIsMuted] = useState(false);
     console.log("비디오 컴포넌트 스트림:"+stream)
@@ -42,6 +42,7 @@ function Video({email, stream, muted}) {
                 autoPlay
             ></VideoContainer>
             <UserLabel>{email}</UserLabel>
+            <UserLabel>{nickname}</UserLabel>
         </Container>
     );
 }

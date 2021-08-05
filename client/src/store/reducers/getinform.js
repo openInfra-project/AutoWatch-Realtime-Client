@@ -4,6 +4,8 @@ const initialState = {
     roomname:'1234',
     useremail:'junyoung@naver.com',
     nickname:'김준영',
+    session:"",
+    userimage:"",
     roomtype:0
 }
 function data(state=initialState,action) {
