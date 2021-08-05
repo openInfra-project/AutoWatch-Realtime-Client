@@ -34,6 +34,8 @@ function Render() {
                         {window.location.assign(`http://localhost:3000/home/${result.payload.roomname}`)}
                     </>
                 )
+            }).catch(e=> {
+                //여기서 session catch 한다 없으면 django 페이지 돌아가는 로직
             })
             console.log("result:"+JSON.stringify( result))
         })

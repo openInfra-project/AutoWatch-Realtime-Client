@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Section from './SectionTemplate/Section'
 import Header from './Header'
 import socket from 'socket.io-client'
@@ -9,6 +9,7 @@ import { BsChatSquareDots } from "react-icons/bs";
 import { useDispatch, useSelector } from 'react-redux';
 import {toggleVideoAudio} from '../store/action/index'
 import Chat from './ChatTemplate/Chat';
+import { useParams } from 'react-router-dom'
 // const SERVERPATH = "https://118.67.131.138:32218";
 // 테스트용 서버주소
 const SERVERPATH = "https://localhost:4000/";
@@ -28,10 +29,28 @@ function Home() {
     })
     //roomname , username, nickname call
     const userdata = useSelector(state=>state.getinform)
+    //userdata를 검사하여 
+    //1.roomname이 다르거나 
+    //2.page reload시 session이 없으면
+    //3.useremail이 같으면
+    // 장고페이지로 이동하게 로직 작성
+    const {id} = useParams() // roomname
+    useEffect(()=> {
+        //roomname을 잘못 치고 들어온경우
+        if(window.performance.navigation.type ===1) {
+            window.location.assign("http://localhost:3000/errorpage")
+            //reload 메세지와 함께 에러페이지로 전송
+            
+        }
+        if(userdata.roomname!==id) {
+            window.location.assign("http://localhost:3000/errorpage")
+            //userdata가 다르다고  에러페이지로 전송
+        }
+        console.log(window.performance)
+    },[])
+
     console.log("테스트용 userdata:"+JSON.stringify( userdata))
-    function handlecreate(data) {
-        console.log("홈 데이터"+JSON.stringify(data))
-    }
+
     const onClickVideo = (e) => {
         onClickChangeBackgroundColor(e)
         Setsetting({
@@ -97,7 +116,7 @@ function Home() {
                 <Chat  setting = {othersetting.chat} io = {io} userdata = {userdata}/>      
                 <div className="footer">
                     <div className="menu">
-                        <p className="user_name">김준영</p>
+                        <p className="user_name">{userdata.nickname}</p>
                             <div className="menu_icon">
                                 <div className="previewInform">
                                     <div id="zxc1" className="preview_p">마이크 켜기</div>
