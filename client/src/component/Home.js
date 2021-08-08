@@ -12,7 +12,7 @@ import Chat from './ChatTemplate/Chat';
 import { useParams } from 'react-router-dom'
 // const SERVERPATH = "https://118.67.131.138:32218";
 // 테스트용 서버주소
-const SERVERPATH = "https://localhost:4000/";
+const SERVERPATH = "https://118.67.131.138:32218";
 const io = socket.connect(SERVERPATH);
 
 function Home() {
