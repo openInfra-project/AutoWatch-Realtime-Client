@@ -76,6 +76,7 @@ function Section(props) {
                 props.setting
              ).then((stream)=> {
                  console.log(stream.getTracks())
+
                  localStream = stream
                  videolocalref.current.srcObject = stream
                  
@@ -135,7 +136,7 @@ function Section(props) {
                 createPeerConnection(allUsers[i].id,allUsers[i].email,allUsers[i].nickname,io,localStream)
                 let pc = pcs[allUsers[i].id]
                 
-                if(pc) {
+                if(pc){
                     //
                     //                     iceRestart 선택 과목
                     // 활성 연결에서 ICE를 다시 시작하려면 이것을 로 설정하십시오 
