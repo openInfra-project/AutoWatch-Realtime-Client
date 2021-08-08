@@ -17,3 +17,10 @@
         @content;
     }
 }
+@mixin animation {
+    animation-duration:1s;
+    animation-duration: leaner;
+    animation-iteration-count:1;
+    animation-direction:alternate;
+    animation-fill-mode: forwards;
+}

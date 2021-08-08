@@ -1,0 +1,235 @@
+@import '../../style/main';
+// Variables
+@media (max-width: 600px){
+  html, body{ 
+      font-size: 12px;
+  }
+}
+
+$bg-color: rgb(8, 142, 195);
+
+$inbox-primary: #EDF2F4;
+$inbox-secondary: lighten($bg-color, 7%);
+$inbox-width: 650px;
+$inbox-height: 450px;
+$inbox-radius: 4px;
+@keyframes true {
+  0% {
+    height:0;
+    width:0%;
+  }
+  100% {
+    height: 30rem;
+    width:30rem;
+  }
+
+ 
+}
+@keyframes false {
+  100% {
+      width:0%;
+      height:0%;
+     
+  }
+ 
+  
+  0% {
+    width:30rem;
+    height:30rem;
+ 
+  
+  }
+}
+
+
+
+
+// Inbox Styles
+.inbox {
+  background: $inbox-primary;
+
+  // height: $inbox-height;
+  display: flex;
+  border-radius: $inbox-radius;
+  position: absolute;
+  top:10%;
+  right:5%;
+  border-radius: 10%;
+  @include animation;
+
+
+
+
+
+  // Aside Styles
+  aside {
+    background: $inbox-secondary;
+    box-sizing: border-box;
+    flex: 1 1 auto;
+    height: 100%;
+    border-top-left-radius: $inbox-radius;
+    border-bottom-left-radius: $inbox-radius;
+    @include mobile {
+        display:none;
+    }
+    .avatar {
+      width: 30px;
+      height: 30px;
+      border: 2px solid #FFF;
+      border-radius: 100%;
+    }
+    // Li Elements In Aside
+    li {
+      background: darken($inbox-secondary, 3%);
+      list-style: none;
+      color: #FFF;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 2em;
+      align-items: center;
+      height: 5em;
+      font-size: 0.8em;
+      cursor: pointer;
+      border-bottom: 1px solid lighten($inbox-secondary, 2%);
+      border-top-left-radius: $inbox-radius;
+      &:hover {
+        background: darken($inbox-secondary, 5%);
+      }
+    }
+  }
+  // Our Main Content Where Conversations Will Be Listed
+  main {
+    background: $inbox-primary;
+    height: 100%;
+    flex: 1 1 70%;
+  
+    border-radius: $inbox-radius;
+    border-top-right-radius: $inbox-radius;
+    border-bottom-right-radius: $inbox-radius;
+    transform: scale(1.035);
+    .message-wrap {
+      height: 88%;
+      overflow-y: scroll;
+    }
+   
+    // Our Footer To Our Main Content, Contains The Submit Form
+    footer {
+      position: fixed;
+      bottom: 0;
+      height: 12%;
+      width: 100%;
+      display: flex;
+      align-items: center;
+     
+      border-top: 1px solid darken($inbox-primary, 4%);
+      .textarea_input {
+        align-items: center;
+        justify-content: center;
+        line-height:1.5;
+        resize:none;
+        width:83%;
+        background-color: transparent;
+        outline:none;
+        border:none;
+        padding: 0.8em;
+        color: #AAA;
+        overflow: auto;
+      
+      
+      }
+      .submitIcon {
+        background: $inbox-secondary;
+        color: #FFF;
+        width: 17%;
+        border-radius: 4px;
+        padding: 0.8em;
+        margin: 0 1em;
+        border: none;
+        cursor: pointer;
+        appearance: none;
+      }
+      form {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+      }
+    }
+  }
+}
+
+// Initial Start Up Screen
+.init {
+
+  height: 85%;
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: -1;
+  overflow-y: scroll;
+  scroll-snap-type: mandatory;
+  .message {
+    display: block;
+    padding: 14px 24px;
+    .messageinner {
+      display:flex;
+      flex-direction: row;
+      .messageinnername {
+        color: #202124;
+        display: inline-block;
+        font-size: 10.24px;
+        font-weight: 500;
+        line-height: 19px;
+        padding-right: 8px;
+        word-wrap: break-word;
+      }
+      .messageinnertime {
+        color: #202124;
+        display: inline-block;
+        font-size: 10.24px;
+        font-weight: 500;
+        line-height: 19px;
+        padding-right: 8px;
+        word-wrap: break-word;
+      }
+    }
+    .ng-binding{
+      color: #202124;
+      font-size: 10.24px;
+      line-height: 20px;
+      padding-top: 10px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+  }
+  
+  
+
+}
+
+
+
+// Loading Animation
+@keyframes loading {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+// Custom Scrollbars
+::-webkit-scrollbar {
+    width: 0px;
+}
+ 
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+ 
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+}

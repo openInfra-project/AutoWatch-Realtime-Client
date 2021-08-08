@@ -17,7 +17,9 @@ export const fetchGetInform = async() => {
         nickname:'김준영',
         roomtype:0
     }
-    //await Axios.post('http://localhost:4000')
+    // await Axios.post('http://localhost:4000/~~').then(()=> {
+
+    // })
     
     // console.log(Data)
 

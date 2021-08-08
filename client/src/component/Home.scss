@@ -1,5 +1,7 @@
-@import '../style/main.scss';
-
+@import '../style/_main';
+p{
+    margin:0;
+}
 
 .HomeSection {
     margin: 0;
@@ -26,7 +28,7 @@
     text-align: center;
     white-space: nowrap;
     width:100vw;
-    height: 4rem;
+    height: 5rem;
 }
 
 .menu {
@@ -47,22 +49,50 @@
         display: flex;
         align-items: center;
         justify-content: space-around;
+        margin-bottom: 2rem;
         
         
+    }
+    .previewInform {
+        .preview_p {
+            color: white;
+            display: block;
+            background-color: #3c4043;
+            border-radius: 10%;
+            padding: 5%;
+            margin-bottom: 5%;
+            font-size: 12px;
+            opacity: 0;
+            @include mobile {
+                font-size:8px
+            }
+            // animation-name: preview_in;
+            animation-duration:0.4s;
+            animation-duration: leaner;
+            animation-iteration-count:1;
+            animation-direction:alternate;
+            animation-fill-mode: forwards;
+            
+        }
+        display:flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
     }
     .circleIcon {
         display:flex;
         justify-content: center;
         align-items: center;
-        width:4rem;
-        height:4rem;
+        width:3.6rem;
+        height:3.6rem;
         border-radius: 50%;
         cursor: pointer;
-        background-color: rgba(0, 0, 0, 0.363);
+        background-color: #3c4043;
         @include mobile {
             width:3rem;
             height: 3rem;
         }
+
         &:hover {
             background-color: #1a1e2c1a;
         }
@@ -76,4 +106,20 @@
     }
     
    
+}
+@keyframes preview_over {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 100;
+    }
+}
+@keyframes preview_leave {
+    0% {
+        opacity:100;
+    }
+    100% {
+        opacity: 0;
+    }
 }

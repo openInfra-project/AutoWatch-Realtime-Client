@@ -1,12 +1,9 @@
 import React ,{ useEffect, useRef,useState}from 'react'
 import './Section.scss'
-import socket from 'socket.io-client'
 import Video from '../VideoTemplate/index'
 import {Grid} from 'semantic-ui-react'
 import useMedia from '../../useMedia'
 import { useSelector} from 'react-redux'
-const SERVERPATH = "https://118.67.131.138:32218/";
-const io = socket.connect(SERVERPATH);
 let tempdata= {
     test1:'',
     test2:'',
@@ -14,6 +11,7 @@ let tempdata= {
 
 };
 function Section(props) {
+    const io = props.io
     console.log(props.setting)
     //video audio 상태관리
     // const {video,audio}= useSelector((state)=> ({
