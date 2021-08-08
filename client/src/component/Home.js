@@ -7,14 +7,16 @@ import {AiOutlineAudioMuted, AiOutlineAudio,AiOutlineVideoCamera,AiOutlineFullsc
 import {BiVideoOff} from 'react-icons/bi'
 import { BsChatSquareDots } from "react-icons/bs";
 import { useDispatch, useSelector } from 'react-redux';
-import {toggleVideoAudio} from '../store/action/index'
+import {receiveChatData, toggleVideoAudio} from '../store/action/index'
 import Chat from './ChatTemplate/Chat';
 import { useParams } from 'react-router-dom'
 // const SERVERPATH = "https://118.67.131.138:32218";
 // 테스트용 서버주소
 const SERVERPATH = "https://localhost:4000/";
 const io = socket.connect(SERVERPATH);
+
 function Home() {
+ 
     const dispatch = useDispatch()
     //비디오 마이크 상태관리
     const [setting,Setsetting] = useState({
@@ -46,6 +48,7 @@ function Home() {
             window.location.assign("http://localhost:3000/errorpage")
             //userdata가 다르다고  에러페이지로 전송
         }
+        
         console.log(window.performance)
     },[])
 
@@ -75,7 +78,7 @@ function Home() {
         
     }
     const onClickChat=(e)=> {
-
+        e.preventDefault()
         onClickChangeBackgroundColor(e)
         SetotherSetting({
             ...othersetting,
