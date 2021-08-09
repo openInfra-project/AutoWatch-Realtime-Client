@@ -128,6 +128,13 @@ const Gaze=()=> {
             <div id="log_div5"></div>
             <div id="log_div6"></div>
             <label id="et2_label">GazeCloudAPI</label>
+            <video
+                id="showvideoid"
+                width="320"
+                height="240"
+                className="video"
+                autoPlay>
+            </video>
 
 
             <div id="gaze"  style={gazeStyle}>            

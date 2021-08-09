@@ -4,6 +4,7 @@ import Video from '../VideoTemplate/index'
 import {Grid} from 'semantic-ui-react'
 import useMedia from '../../useMedia'
 import { useSelector} from 'react-redux'
+import { BiLeftArrow } from 'react-icons/bi'
 let tempdata= {
     test1:'',
     test2:'',
@@ -11,6 +12,169 @@ let tempdata= {
 
 };
 function Section(props) {
+    //Gaze.js에관한내용
+    let success = "fail";
+    // 초기 video 화면 크기 >> 이후 방 입장인원따라 다르게 해주기
+    localStorage.setItem('width',"600px");
+    localStorage.setItem('height',"400px");
+    useEffect(() => {
+        const script = document.createElement("script");
+        
+        script.innerHTML = `
+                var calibrated = false;
+                var gc_started = false;
+                var hm_left = 0;
+                var hm_top = 0;
+                var hm_created = false;
+                var count = 0;
+                window.onload = async function () {
+                    setInnerText('title','초점을 맞추겠습니다.');
+                    //////set callbacks for GazeCloudAPI/////////
+                    GazeCloudAPI.OnCalibrationComplete = function () {
+                        console.log('gaze Calibration Complete');
+                        calibrated = true;
+                    }
+                    GazeCloudAPI.OnCamDenied = function () { console.log('camera  access denied') }
+                    GazeCloudAPI.OnError = function (msg) { console.log('err: ' + msg) }
+                    GazeCloudAPI.UseClickRecalibration = true;
+                    GazeCloudAPI.OnResult = PlotGaze;
+
+                    GazeCloudAPI.StartEyeTracking(); 
+                
+                }
+     
+                function PlotGaze(GazeData) {
+                    // Init setting
+                    document.getElementById('facemaskimgok').style.display="none";
+                    
+                    var docx = GazeData.docX;
+                    var docy = GazeData.docY;
+                
+                    var gaze = document.getElementById("gaze");
+                    docx -= gaze.clientWidth / 2;
+                    docy -= gaze.clientHeight / 2;
+                
+                    gaze.style.left = docx + "px";
+                    gaze.style.top = docy + "px";
+                
+                    setInnerText('log_div',gaze.style.left)
+                    setInnerText('log_div2',gaze.style.top)
+                    setInnerText('log_div3',screen.width)
+                    setInnerText('log_div4',screen.height)
+                
+                    if (GazeData.state != 0) {
+                        if (gaze.style.display == 'block')
+                            gaze.style.display = 'none';
+                    }
+                    else {
+                        var video =  document.getElementById('showvideoid');
+
+                        count = count + 1;
+                        if (count == 1){
+                            //초점 확인 단계
+                            if (gaze.style.display == 'none')
+                                gaze.style.display = 'block';
+                            console.log("Gaze CHECK");
+
+                            setInnerText('title',"Check Your Gaze. If your gaze isn't correct, reset calibration");
+                            console.log("change title")
+                            video.style.display = "none";
+                            video.style.margin = "auto";
+                            document.getElementById('check_calibration').style.display = "block";
+
+                           //일정시간지나면 버튼클릭안해도 SET으로
+                            setTimeout(() => {
+                                console.log("CHECK_TIMEOUT")
+                                document.getElementById('check_calibration').style.display = "none";
+                                document.getElementById('title').style.display = "none";
+                                document.getElementById('gaze').style.display = "none";
+                                video.style.display = "block";
+                            }, 10000)
+                            
+                            
+                        }
+                        
+                        var maskno = document.getElementById('facemaskimgno');
+                        document.getElementById('camid').style.opacity = "1";
+                        video.style.height = localStorage.getItem('height');
+                        video.style.width = localStorage.getItem('width');
+
+                        maskno.style.height = localStorage.getItem('height');
+                        maskno.style.width = localStorage.getItem('width');
+
+                        if(maskno.style.display == "block"){
+                            console.log("자리이탈시");
+                        }
+                                            
+                        
+
+                        // Eyetracking - 이상시선감지 기능
+                        if (-80 > docx || docx > 1280 || -80 > docy || docy > 720 ){
+                            setInnerText('log_div6','OUT')
+                            // 감독관에게 알람!
+                        }else{
+                            setInnerText('log_div6','IN')
+                        }
+                    }
+                }
+                
+                // Kalman Filter defaults to on. Can be toggled by user.
+                window.applyKalmanFilter = true;
+                
+                // Set to true if you want to save the data even if you reload the page.
+                window.saveDataAcrossSessions = true;
+
+                // div 내용 바꾸기
+                function setInnerText(id,log) {
+                    const element = document.getElementById(id);
+                    element.innerText 
+                        = log ;
+                } 
+                
+       `;
+        script.type = "text/javascript";
+        script.async = "async";
+        document.head.appendChild(script)
+        success = "success"
+        console.log(success)
+      });
+   
+    const gazeStyle={
+        position: "absolue",
+        display:"none",
+        width:"100px",
+        height:"100px",
+        borderRadius:"50%",
+        border: "solid 2px rgba(255, 255,255, .2)",
+        boxShadow: " 0 0 100px 3px rgba(125, 125,125, .5)",
+        pointerEvents: "none",
+        zIndex: "999999",
+    }
+    const titleStyle={
+        color:"white"
+    }
+    const videoStyle={
+        display:"none"
+    }
+    const buttonStyle={
+        fontSize: "32px",
+        padding: "10px 10px",
+        float: "left"
+    }
+    function reset(){
+        window.location.reload();
+        console.log("RESET");
+    }
+    function set(){
+        document.getElementById('check_calibration').style.display = "none";
+        document.getElementById('title').style.display = "none";
+        document.getElementById('gaze').style.display = "none";
+        document.getElementById('showvideoid').style.display = "block";        
+        console.log("SET");
+    }
+    
+
+
     const io = props.io
     console.log(props.setting)
     //video audio 상태관리
@@ -268,14 +432,29 @@ function Section(props) {
 
     return (
         <>
-
+            <div id="log_div"></div>
+            <div id="log_div2"></div>
+            <div id="log_div3"></div>
+            <div id="log_div4"></div>
+            <div id="log_div5"></div>
+            <div id="log_div6"></div>
+            <h1 id="title" align="center" style={titleStyle}></h1>
+            <div id="check_calibration" style={videoStyle}>
+                {/* <h1 id="check_calibration" align="center" style={titleStyle}></h1> */}
+                <button id="reset_calibration" align="center" style={buttonStyle} onClick={reset}>RESET</button>
+                <button id="set_calibration" align="center" style={buttonStyle} onClick={set}>SET</button>
+            </div>
+            
+            <div id="gaze"  style={gazeStyle}>            
+            </div>
             <div className="SectionContainer">
                 
                 <video
                     className="video"
-                  
+                    id="showvideoid"
                     muted
                     ref={videolocalref}
+                    style={videoStyle}
                     autoPlay>
                 </video>
                     {console.log("길이"+users.length)}
