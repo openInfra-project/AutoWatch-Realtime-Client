@@ -43,6 +43,7 @@ p{
         
        
     }
+    
     .menu_icon {
         width: 100%;
         margin-left: 0.5rem;
@@ -53,6 +54,7 @@ p{
         
         
     }
+   
     .previewInform {
         .preview_p {
             color: white;
@@ -104,7 +106,21 @@ p{
          
         }
     }
-    
+    .exit {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 7.2rem;
+        height: 3.6rem;
+        border-radius: 1rem;
+        cursor: pointer;
+        background-color:red;
+        .exiticon {
+            width: 50%;
+            height: 50%;
+            color: white;
+        }
+    }
    
 }
 @keyframes preview_over {

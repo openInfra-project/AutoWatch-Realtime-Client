@@ -4,6 +4,7 @@ import Lottie from 'react-lottie'
 import lottieanim from '../../lottie/LottieLoading.json'
 import { fetchGetInform } from '../../store/action'
 import { useDispatch } from 'react-redux'
+import {Link} from 'react-router-dom'
 import swal from 'sweetalert'
 function Render() {
     //로티 옵션
@@ -26,7 +27,15 @@ function Render() {
                 text:result.payload.nickname+"님 환영합니다"
                 
             }).then(()=> {
-                window.location.assign('http://localhost:3000')
+                return (
+                    <>
+                        {console.log( <Link to ={`/home/${result.payload.roomname}`}/>  )}
+                        <Link to={`/home/${result.payload.roomname}`}  params ={{id:result.payload.roomname}} />
+                        {window.location.assign(`https://cranky-bohr-e0f18a.netlify.app/home/${result.payload.roomname}`)}
+                    </>
+                )
+            }).catch(e=> {
+                //여기서 session catch 한다 없으면 django 페이지 돌아가는 로직
             })
             console.log("result:"+JSON.stringify( result))
         })
