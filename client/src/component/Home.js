@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from 'react'
 import Section from './SectionTemplate/Section'
-import Header from './Header'
 import socket from 'socket.io-client'
 import './Home.scss'
 import {AiOutlineAudioMuted, AiOutlineAudio,AiOutlineVideoCamera,AiOutlineFullscreen,AiOutlineUsergroupAdd} from "react-icons/ai";
 import {BiVideoOff} from 'react-icons/bi'
+import {ImExit} from 'react-icons/im'
 import { BsChatSquareDots } from "react-icons/bs";
 import { useDispatch, useSelector } from 'react-redux';
 import {receiveChatData, toggleVideoAudio} from '../store/action/index'
 import Chat from './ChatTemplate/Chat';
 import { useParams } from 'react-router-dom'
-// const SERVERPATH = "https://118.67.131.138:32218";
+// const SERVERPATH = "https://118.67.131.138:30010/";
 // 테스트용 서버주소
-const SERVERPATH = "https://118.67.131.138:32218";
+const SERVERPATH = "https://118.67.131.138:30010/";
 const io = socket.connect(SERVERPATH);
 
 function Home() {
@@ -49,7 +49,7 @@ function Home() {
             //userdata가 다르다고  에러페이지로 전송
         }
         
-        console.log(window.performance)
+
     },[])
 
     console.log("테스트용 userdata:"+JSON.stringify( userdata))
@@ -99,12 +99,13 @@ function Home() {
     const onClickFullScreen=(e)=> {
         onClickChangeBackgroundColor(e)
     }
-    const onClickgroupadd=(e)=> {
+    const onClickExit=(e)=> {
         onClickChangeBackgroundColor(e)
     }
     const onMouseover= id => {
         const a = document.getElementById(id)
         a.style.animationName="preview_over"
+        
         
         
     }
@@ -138,12 +139,6 @@ function Home() {
                                     </div>
                                 </div>
                                 <div className="previewInform">
-                                    <div id = "zxc3"className="preview_p">그룹 초대하기</div>
-                                    <div className="circleIcon" onClick={onClickgroupadd} onMouseOver={()=>onMouseover("zxc3")} onMouseLeave={()=>onMouseLeave("zxc3")} >
-                                        <AiOutlineUsergroupAdd className="icon usergroupadd"/>
-                                    </div>
-                                </div>
-                                <div className="previewInform">
                                     <div id = "zxc4"className="preview_p">채팅하기</div>
                                     <div className="circleIcon" onClick={onClickChat} onMouseOver={()=>onMouseover("zxc4")} onMouseLeave={()=>onMouseLeave("zxc4")}>
                                         <BsChatSquareDots className="icon" />
@@ -155,6 +150,12 @@ function Home() {
                                     <div className="circleIcon" onClick={onClickFullScreen} onMouseOver={()=>onMouseover("zxc5")} onMouseLeave={()=>onMouseLeave("zxc5")}>
                                       <AiOutlineFullscreen className="icon fullscreen"/>
                                     </div>      
+                                </div>
+                                <div className="previewInform">
+                                    <div id = "zxc3"className="preview_p">회의 나가기</div>
+                                    <div className="exit" onClick={onClickExit} onMouseOver={()=>onMouseover("zxc3")} onMouseLeave={()=>onMouseLeave("zxc3")} >
+                                        <ImExit className="exiticon icon"/>
+                                    </div>
                                 </div>      
                             </div>
                                 

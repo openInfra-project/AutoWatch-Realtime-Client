@@ -75,19 +75,21 @@ function Section(props) {
             navigator.mediaDevices.getUserMedia(
                 props.setting
              ).then((stream)=> {
-                 console.log(stream.getTracks())
+                console.log(stream.getTracks())
 
-                 localStream = stream
-                 videolocalref.current.srcObject = stream
+                localStream = stream
+                videolocalref.current.srcObject = stream
                  
                 io.emit('join room',{
                     'room':userdata.roomname,
                     'email':userdata.useremail,
                     'nickname':userdata.nickname,
-                    'roomtype':userdata.roomtype
+                    'roomtype':userdata.roomtype,
+                    'roomowner':userdata.roomowner
                 })
+                console.log("test"+io.id)
                 
-                 
+               
              
                 
              }).catch((err)=> {
@@ -215,17 +217,39 @@ function Section(props) {
             }
         })
         io.on('user_exit',data=> {
-        
             pcs[data.id].close()
             delete pcs[data.id]
+            alert(`${JSON.stringify(data.nickname)}님이 나갔습니다.`)
             setUsers(oldUsers=>oldUsers.filter(user=> user.id!==data.id))
 
+        })
+        //만약 지금 사용자가 방장이면
+        //receiveGazeAlert를 받았다면,
+        io.on('receiveGazeAlert',(data)=> {
+            alert(`${data}이가 부정행위를 한다!!!`)
         })
         
        
         
       
     },[])
+
+//------------------gaze부분 알람 작성 코드 ----------------
+
+    var gaze = ""
+    //gaze  === 시각정보 알람
+    //자신의 데이터를 서버로 보내고, 방장한테 받은 데이터를 보낸다
+    useEffect(()=> {
+        io.emit('gazealert',{
+            roomname:userdata.roomname,
+            nickname:userdata.nickname
+        })
+        
+    },[gaze])
+
+
+
+
     const createPeerConnection = (socketID, email,nickname ,newSocket, localStream)=> {
 
         let pc = new RTCPeerConnection(pcConfig);

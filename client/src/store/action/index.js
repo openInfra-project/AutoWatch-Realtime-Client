@@ -20,6 +20,7 @@ export const fetchGetInform = async() => {
     const Data = {
         roomname:'1234',
         useremail:'junyoung@naver.com',
+        roomowner:"junyoung@naver.com",
         nickname:'김준영',
         session:"",
         userimage:"",

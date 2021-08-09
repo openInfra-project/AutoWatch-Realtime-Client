@@ -13,7 +13,6 @@ var chatdata= ""
 function Chat(props) {
     const [chat,Setchat]  = useState([])
     const dispatch = useDispatch()
-
     const io = props.io
     const {roomname,useremail,nickname,roomtype,userimage} = props.userdata
     console.log("채팅 활성화 상태:"+props.setting)
