@@ -169,14 +169,6 @@ function Section(props) {
                 }
             }
         })
-
-    },[props.setting])
-   
-  
-    useEffect(()=> {
-        
-        
-       
         io.on('getOffer',(data)=> {
             console.log('get offer')
            
@@ -233,6 +225,15 @@ function Section(props) {
         io.on('receiveGazeAlert',(data)=> {
             alert(`${data}이가 부정행위를 한다!!!`)
         })
+
+    },[props.setting])
+   
+  
+    useEffect(()=> {
+        
+        
+       
+       
         
        
         
