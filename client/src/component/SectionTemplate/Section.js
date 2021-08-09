@@ -8,6 +8,7 @@ import { useSelector} from 'react-redux';
 function Section(props) {
     const io = props.io
     const userdata = props.userdata
+    
     console.log("props 상태"+JSON.stringify( props.setting))
     //video audio 상태관리
     // const {video,audio}= useSelector((state)=> ({
@@ -18,7 +19,7 @@ function Section(props) {
     // })
 
 
-    // console.log("Section 비디오 상태:"+video+"\n Section 오디오 상태"+audio)
+ //console.log("Section 비디오 상태:"+video+"\n Section 오디오 상태"+audio)
 
 
     const [users,setUsers] = useState([])
@@ -60,7 +61,9 @@ function Section(props) {
   
     //footer부분을 home으로 다 옮기고
     //비디오와 오디오를 props로 section으로 보내주기 !
+
     useEffect(()=> {
+        
         if(props.setting.video ===false && props.setting.audio ===false) {
             try {
                 videolocalref.current.srcObject.getTracks()[0].stop()
@@ -119,13 +122,6 @@ function Section(props) {
                     }
              })
         }
-
-    },[props])
-   
-  
-    useEffect(()=> {
-
-        
         io.on('all_users',(allUsers)=> {
         
             len = allUsers.length
@@ -148,14 +144,15 @@ function Section(props) {
                     //기본값은 false 입니다.
                     //re rendering 되더라도 자격증명이 똑같으면 offer이 새로 되지 않는다
                     console.log("상태체크 offer"+JSON.stringify(props.setting))
-                    console.log("상태체크 offer detail"+ props.setting.video+props.setting.audio)
+                    console.log("상태체크 offer detail"+ props.setting.video+  props.setting.audio)
+                   
                     pc.createOffer({
                         // iceRestart : true,
                         offerToReceiveAudio:props.setting.audio,
                         offerToReceiveVideo:props.setting.video
                     })
                     .then(sdp=> {
-                       
+                        console.log(sdp)
                         console.log('원격 연결 신청(나 자신):create offer success')
                         pc.setLocalDescription(new RTCSessionDescription(sdp))
                         io.emit('offer',{
@@ -172,6 +169,14 @@ function Section(props) {
                 }
             }
         })
+
+    },[props.setting])
+   
+  
+    useEffect(()=> {
+        
+        
+       
         io.on('getOffer',(data)=> {
             console.log('get offer')
            
@@ -233,6 +238,8 @@ function Section(props) {
         
       
     },[])
+
+ 
 
 //------------------gaze부분 알람 작성 코드 ----------------
 

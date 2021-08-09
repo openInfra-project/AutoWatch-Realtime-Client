@@ -7,9 +7,12 @@ import {BiVideoOff} from 'react-icons/bi'
 import {ImExit} from 'react-icons/im'
 import { BsChatSquareDots } from "react-icons/bs";
 import { useDispatch, useSelector } from 'react-redux';
-import {receiveChatData, toggleVideoAudio} from '../store/action/index'
+import {toggleVideoAudio} from '../store/action/index'
 import Chat from './ChatTemplate/Chat';
 import { useParams } from 'react-router-dom'
+import swal from 'sweetalert'
+
+import Group from './GroupTemplate/Group';
 // const SERVERPATH = "https://118.67.131.138:30010/";
 // 테스트용 서버주소
 const SERVERPATH = "https://118.67.131.138:30010/";
@@ -24,11 +27,14 @@ function Home() {
         audio:true
     })
     // 그룹초대 채팅 전체화면 상태관리
-    const [othersetting,SetotherSetting] = useState({
-        group:false,
-        chat:false,
-        full:false
+    const [otherGroupsetting,SetotherGroupSetting] = useState({
+        group:false
+        
     })
+    const [otherChatsetting,SetOtherChatSetting] = useState({
+        chat:false
+    })
+ 
     //roomname , username, nickname call
     const userdata = useSelector(state=>state.getinform)
     //userdata를 검사하여 
@@ -40,9 +46,8 @@ function Home() {
     useEffect(()=> {
         //roomname을 잘못 치고 들어온경우
         if(window.performance.navigation.type ===1) {
-            window.location.assign("https://cranky-bohr-e0f18a.netlify.app/errorpage")
-            //reload 메세지와 함께 에러페이지로 전송
-            
+
+           window.location.assign("https://cranky-bohr-e0f18a.netlify.app/errorpage")
         }
         if(userdata.roomname!==id) {
             window.location.assign("https://cranky-bohr-e0f18a.netlify.app/errorpage")
@@ -60,8 +65,6 @@ function Home() {
             ...setting,
             video:!setting.video
         })
-        console.log("비디오 활성화 상태:"+setting.video)
-        //video상태를 전부 store에 저장
         dispatch(toggleVideoAudio(setting))
        
         
@@ -72,17 +75,16 @@ function Home() {
             ...setting,
             audio:!setting.audio
         })
-        console.log("오디오 활성화 상태:"+setting.audio)
-        //audio상태를 전부 store에 저장
         dispatch(toggleVideoAudio(setting))
+   
         
     }
     const onClickChat=(e)=> {
         e.preventDefault()
         onClickChangeBackgroundColor(e)
-        SetotherSetting({
-            ...othersetting,
-            chat:!othersetting.chat
+        SetOtherChatSetting({
+            ...otherChatsetting,
+            chat:!otherChatsetting.chat
         })
 
         
@@ -96,11 +98,41 @@ function Home() {
         }
        
     }
-    const onClickFullScreen=(e)=> {
+    const onClickGroup=(e)=> {
+        e.preventDefault()
         onClickChangeBackgroundColor(e)
+        SetotherGroupSetting({
+            ...otherGroupsetting,
+            group:!otherGroupsetting.group
+        })
+        
+       
+        
+       
+//        exitFull()
+
     }
     const onClickExit=(e)=> {
-        onClickChangeBackgroundColor(e)
+        
+        //방에서 나가시겠습니까 알람 표시를 뜨게 한다.
+        swal("" ,{
+            title:"회의에서 나가시겠습니까?",
+            icon:"warning",
+            text:"",
+            dangerMode:true
+            
+        }).then((value)=> {
+            //나중에 장고 페이지로 고치기
+            if(value) {
+                window.location.assign("http://localhost:3000/errorpage")
+            }else {
+                //아무 동작 하지 않는다.
+                return;
+            }
+           
+          
+        })
+        
     }
     const onMouseover= id => {
         const a = document.getElementById(id)
@@ -114,10 +146,11 @@ function Home() {
     }
     return (
         <>
-            <div className="HomeSection">
+            <div className="HomeSection" >
              
-                <Section setting = {setting} io = {io} userdata = {userdata}/> 
-                <Chat  setting = {othersetting.chat} io = {io} userdata = {userdata}/>      
+                <Section  setting = {setting} io = {io} userdata = {userdata}/> 
+                <Group setting = {otherGroupsetting.group}/>
+                <Chat  setting = {otherChatsetting.chat} io = {io} userdata = {userdata}/>      
                 <div className="footer">
                     <div className="menu">
                         <p className="user_name">{userdata.nickname}</p>
@@ -146,9 +179,9 @@ function Home() {
                                 </div>
                                
                                 <div className="previewInform">
-                                    <div id = "zxc5" className="preview_p">전체 화면</div>
-                                    <div className="circleIcon" onClick={onClickFullScreen} onMouseOver={()=>onMouseover("zxc5")} onMouseLeave={()=>onMouseLeave("zxc5")}>
-                                      <AiOutlineFullscreen className="icon fullscreen"/>
+                                    <div id = "zxc5" className="preview_p">그룹</div>
+                                    <div className="circleIcon" onClick={onClickGroup} onMouseOver={()=>onMouseover("zxc5")} onMouseLeave={()=>onMouseLeave("zxc5")}>
+                                      <AiOutlineUsergroupAdd className="icon fullscreen"/>
                                     </div>      
                                 </div>
                                 <div className="previewInform">

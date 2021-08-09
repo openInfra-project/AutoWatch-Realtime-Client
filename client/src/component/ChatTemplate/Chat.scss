@@ -15,46 +15,29 @@ $inbox-height: 450px;
 $inbox-radius: 4px;
 @keyframes true {
   0% {
-    position: absolute;
-    top:-100%;
-    right:5%;
-    height: 0;
-    width:0;
+    right:-100%;
   }
   100% {
- 
-    position: absolute;
-    top:10%;
-    right:5%;
-    height:30rem;
-    width:30rem;
+    right: 10%;
+   
   }
 
  
 }
 @keyframes false {
   100% {
-    position: absolute;
-    top:-100%;
-    right:5%;
-    width:0%;
-    height:0%;
+    right:-100%;
 
      
   }
  
   
   0% {
-    position: absolute;
-    top:10%;
-    right:5%;
-    width:30rem;
-    height:30rem;
+    right:10%;
 
   
   }
 }
-
 
 
 
@@ -66,8 +49,14 @@ $inbox-radius: 4px;
   display: flex;
   border-radius: $inbox-radius;
   border-radius: 10%;
+  width:30%;
+  height:70%;
+  position:absolute;
+  top:10%;
+  right:-100%;
   @include animation;
-
+ 
+  
 
 
 
@@ -219,18 +208,8 @@ $inbox-radius: 4px;
 
 
 
-// Loading Animation
-@keyframes loading {
-  0% {
-    opacity: 0;
-  }
-  50% {
-    opacity: 0.7;
-  }
-  100% {
-    opacity: 0;
-  }
-}
+
+
 
 // Custom Scrollbars
 ::-webkit-scrollbar {
