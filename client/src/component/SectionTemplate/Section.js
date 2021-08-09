@@ -147,7 +147,7 @@ function Section(props) {
                     console.log("상태체크 offer detail"+ props.setting.video+  props.setting.audio)
                    
                     pc.createOffer({
-                        // iceRestart : true,
+                        iceRestart : true,
                         offerToReceiveAudio:props.setting.audio,
                         offerToReceiveVideo:props.setting.video
                     })
