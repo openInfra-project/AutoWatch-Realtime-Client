@@ -35,7 +35,11 @@ function Video({email, nickname,stream, audio,video}) {
         }else {
             setIsMuted(false)
         }
-        if(video===false) ref.current.srcObject = null
+        if(video===false) {
+            ref.current.srcObject = null
+        }else {
+            ref.current.srcObject = stream;
+        }
     },[audio,video])
 
     return (
