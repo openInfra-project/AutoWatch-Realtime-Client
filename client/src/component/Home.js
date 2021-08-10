@@ -60,6 +60,7 @@ function Home() {
     console.log("테스트용 userdata:"+JSON.stringify( userdata))
 
     const onClickVideo = (e) => {
+        e.preventDefault()
         onClickChangeBackgroundColor(e)
         Setsetting({
             ...setting,
@@ -70,6 +71,7 @@ function Home() {
         
     }
     const onClickAudio = (e)=> {
+        e.preventDefault()
         onClickChangeBackgroundColor(e)
         Setsetting({
             ...setting,

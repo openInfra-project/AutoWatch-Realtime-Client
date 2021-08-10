@@ -9,7 +9,7 @@ function Section(props) {
     const io = props.io
     const userdata = props.userdata
     
-    console.log("props 상태"+JSON.stringify( props.setting))
+ 
     //video audio 상태관리
     // const {video,audio}= useSelector((state)=> ({
     //     video:state.toggleVideoAudio.video,
@@ -63,7 +63,7 @@ function Section(props) {
     //비디오와 오디오를 props로 section으로 보내주기 !
 
     useEffect(()=> {
-        
+        console.log("props 상태"+JSON.stringify( props.setting))
         if(props.setting.video ===false && props.setting.audio ===false) {
             try {
                 videolocalref.current.srcObject.getTracks()[0].stop()
@@ -79,7 +79,7 @@ function Section(props) {
                 props.setting
              ).then((stream)=> {
                 console.log(stream.getTracks())
-
+                
                 localStream = stream
                 videolocalref.current.srcObject = stream
                  
@@ -88,9 +88,11 @@ function Section(props) {
                     'email':userdata.useremail,
                     'nickname':userdata.nickname,
                     'roomtype':userdata.roomtype,
-                    'roomowner':userdata.roomowner
+                    'roomowner':userdata.roomowner,
+                    'audio':props.setting.audio,
+                    'video':props.setting.video
                 })
-                console.log("test"+io.id)
+                
                 
                
              
@@ -122,16 +124,21 @@ function Section(props) {
                     }
              })
         }
-        io.on('all_users',(allUsers)=> {
-        
+       
+
+    },[props.setting])
+   
+
+    useEffect(()=> {
+        io.on('all_users',(allUsers,audio,video)=> {
             len = allUsers.length
             console.log("allUsers :"+JSON.stringify(allUsers))
             
             for(let i=0; i<len; i++){
                 console.log("현재 방의 참가자는 :"+allUsers[i].id)
                 console.log('io의 아이디'+io.id)
-          
-                createPeerConnection(allUsers[i].id,allUsers[i].email,allUsers[i].nickname,io,localStream)
+                
+                createPeerConnection(allUsers[i].id,allUsers[i].email,allUsers[i].nickname,allUsers[i].audio,allUsers[i].video,io,localStream)
                 let pc = pcs[allUsers[i].id]
                 
                 if(pc){
@@ -143,13 +150,15 @@ function Section(props) {
                     //증명을 유지하고 ICE를 다시 시작하지 않도록 지정 합니다. 
                     //기본값은 false 입니다.
                     //re rendering 되더라도 자격증명이 똑같으면 offer이 새로 되지 않는다
-                    console.log("상태체크 offer"+JSON.stringify(props.setting))
-                    console.log("상태체크 offer detail"+ props.setting.video+  props.setting.audio)
+                 
+                    
+
+                 
                    
                     pc.createOffer({
                         iceRestart : true,
-                        offerToReceiveAudio:props.setting.audio,
-                        offerToReceiveVideo:props.setting.video
+                        offerToReceiveAudio:true,
+                        offerToReceiveVideo:true
                     })
                     .then(sdp=> {
                         console.log(sdp)
@@ -160,9 +169,12 @@ function Section(props) {
                             offerSendId:io.id,
                             offerSendEmail:allUsers[i].email,
                             offerSendNickname:allUsers[i].nickname,
-                            offerReciveID:allUsers[i].id
+                            offerReciveID:allUsers[i].id,
+                            audio:allUsers[i].audio,
+                            video:allUsers[i].video
                         
                         })
+                        
                     }).catch(error=> {
                         console.log(error)
                     })
@@ -172,8 +184,8 @@ function Section(props) {
         io.on('getOffer',(data)=> {
             console.log('get offer')
            
-            createPeerConnection(data.offerSendId,data.offerSendEmail,data.offerSendnickname,io,localStream)
-           
+            createPeerConnection(data.offerSendId,data.offerSendEmail,data.offerSendnickname,data.audio,data.video,io,localStream)
+            console.log("22222222222"+data.audio+data.video)
             let pc = pcs[data.offerSendId]
             if(pc) {
                 pc.setRemoteDescription(new RTCSessionDescription(data.sdp)).then(()=> {
@@ -205,11 +217,11 @@ function Section(props) {
             }
         })
         io.on('getCandidate',(data)=> {
-            console.log('get candidate')
+            
             let pc=  pcs[data.candidateSendID]
             if(pc) {
                 pc.addIceCandidate(new RTCIceCandidate(data.candidate)).then(()=> {
-                    console.log('candidate add success')
+                    //
                 })
             }
         })
@@ -225,12 +237,6 @@ function Section(props) {
         io.on('receiveGazeAlert',(data)=> {
             alert(`${data}이가 부정행위를 한다!!!`)
         })
-
-    },[props.setting])
-   
-  
-    useEffect(()=> {
-        
         
        
        
@@ -247,28 +253,35 @@ function Section(props) {
     var gaze = ""
     //gaze  === 시각정보 알람
     //자신의 데이터를 서버로 보내고, 방장한테 받은 데이터를 보낸다
-    useEffect(()=> {
-        io.emit('gazealert',{
-            roomname:userdata.roomname,
-            nickname:userdata.nickname
-        })
+    // useEffect(()=> {
+    //     io.emit('gazealert',{
+    //         roomname:userdata.roomname,
+    //         nickname:userdata.nickname
+    //     })
         
-    },[gaze])
+    // },[gaze])
 
 
 
 
-    const createPeerConnection = (socketID, email,nickname ,newSocket, localStream)=> {
-
+    const createPeerConnection = (socketID, email,nickname ,audio,video,newSocket, localStream)=> {
         let pc = new RTCPeerConnection(pcConfig);
-    
+        console.log("aaaaa"+video+audio+JSON.stringify(users))
+        if (localStream) {
+            console.log('localstream add');
+            localStream.getTracks().forEach(track => {
+              pc.addTrack(track, localStream);
+            });
+          } else {
+            console.log('no local stream');
+          }
         // add pc to peerConnections object
         pcs = { ...pcs, [socketID]: pc };
     
         pc.onicecandidate = (e) => {
             console.log(e)
           if (e.candidate) {
-            console.log('onicecandidate');
+           
             newSocket.emit('candidate', {
               candidate: e.candidate,
               candidateSendID: newSocket.id,
@@ -282,24 +295,22 @@ function Section(props) {
         }
     
         pc.ontrack = (e) => {
-          console.log('ontrack success');
+          console.log('ontrack success and audio'+audio);
+          
           setUsers(oldUsers => oldUsers.filter(user => user.id !== socketID));
+          
           setUsers(oldUsers => [...oldUsers, {
             id: socketID,
             email: email,
             nickname:nickname,
+            audio:audio,
+            video:video,
             stream: e.streams[0]
           }]);
+          console.log(JSON.stringify(users))
         }
     
-        if (localStream) {
-          console.log('localstream add');
-          localStream.getTracks().forEach(track => {
-            pc.addTrack(track, localStream);
-          });
-        } else {
-          console.log('no local stream');
-        }
+       
     
         // return pc
         return pc;
@@ -318,18 +329,16 @@ function Section(props) {
 
  
 
-
+   
 
 
 
     return (
         <>
 
-            <div className="SectionContainer">
-                
+            <div className="SectionContainer">          
                 <video
                     className="video"
-                  
                     muted
                     ref={videolocalref}
                     autoPlay>
@@ -338,12 +347,14 @@ function Section(props) {
                 <Grid divided = "vertically">
                     <Grid.Row columns = {columnCount}>
                         {users.map((user,index)=> {
+                            console.log(""+user.video+user.audio)
                             return (
-                           
                                 <Video
                                     key={index}
                                     email={user.email}
                                     nickname = {user.nickname}
+                                    audio = {user.audio}
+                                    video = {user.video}
                                     stream={user.stream}
                                 />
                         

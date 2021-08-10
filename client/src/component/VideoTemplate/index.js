@@ -24,14 +24,19 @@ const UserLabel = Styled.p`
 
 
 
-function Video({email, nickname,stream, muted}) {
+function Video({email, nickname,stream, audio,video}) {
     const ref = useRef(null);
     const [isMuted, setIsMuted] = useState(false);
     useEffect(() => {
-        
+        console.log("audio와 video "+audio +" , "+video)
         if (ref.current) ref.current.srcObject = stream;
-        if (muted) setIsMuted(muted);
-    },[])
+        if (audio==false) {
+            setIsMuted(true)
+        }else {
+            setIsMuted(false)
+        }
+        if(video===false) ref.current.srcObject = null
+    },[audio,video])
 
     return (
         <Container>
