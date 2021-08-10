@@ -10,9 +10,7 @@ const Container = Styled.div`
 `;
 
 const VideoContainer = Styled.video`
-    width: 240px;
-    height: 240px;
-    background-color: black;
+   
 `;
 
 const UserLabel = Styled.p`
@@ -26,29 +24,42 @@ const UserLabel = Styled.p`
 
 function Video({email, nickname,stream, audio,video}) {
     const ref = useRef(null);
-    const [isMuted, setIsMuted] = useState(false);
+    const [aa,saa] = useState(false)
+    console.log(typeof audio)
+    console.log(!audio)
     useEffect(() => {
         console.log("audio와 video "+audio +" , "+video)
         if (ref.current) ref.current.srcObject = stream;
-        if (audio==false) {
-            setIsMuted(true)
+        if(audio===false) {
+            ref.current.defaultMuted = true;
+            ref.current.muted = true
+            document.getElementById("videoindex").muted = true
+            saa(!aa)
+
         }else {
-            setIsMuted(false)
+            document.getElementById("videoindex").muted = false
+            saa(!aa)
+            // ref.current.muted = false
+            // document.getElementById("videoindex").muted = true
         }
         if(video===false) {
             ref.current.srcObject = null
         }else {
             ref.current.srcObject = stream;
         }
-    },[audio,video])
+    },[])
 
     return (
         <Container>
-            <VideoContainer 
+            {console.log("마지막 오디오 체크"+audio)}
+            <video
+                style={{width:"240px" ,height:"240px",
+                    backgroundColor: "black"}}
+                id ="videoindex"
                 ref={ref}
-                muted={isMuted}
+                muted = {!audio}
                 autoPlay
-            ></VideoContainer>
+            ></video>
             <UserLabel>{email}</UserLabel>
             <UserLabel>{nickname}</UserLabel>
         </Container>

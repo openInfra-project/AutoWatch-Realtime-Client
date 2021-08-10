@@ -130,7 +130,7 @@ function Section(props) {
    
 
     useEffect(()=> {
-        io.on('all_users',(allUsers,audio,video)=> {
+        io.on('all_users',(allUsers,mydata)=> {
             len = allUsers.length
             console.log("allUsers :"+JSON.stringify(allUsers))
             
@@ -170,8 +170,8 @@ function Section(props) {
                             offerSendEmail:allUsers[i].email,
                             offerSendNickname:allUsers[i].nickname,
                             offerReciveID:allUsers[i].id,
-                            audio:props.setting,
-                            video:allUsers[i].video
+                            audio:mydata.audio,
+                            video:mydata.video
                         
                         })
                         
