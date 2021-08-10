@@ -170,7 +170,7 @@ function Section(props) {
                             offerSendEmail:allUsers[i].email,
                             offerSendNickname:allUsers[i].nickname,
                             offerReciveID:allUsers[i].id,
-                            audio:allUsers[i].audio,
+                            audio:props.setting,
                             video:allUsers[i].video
                         
                         })
@@ -181,34 +181,7 @@ function Section(props) {
                 }
             }
         })
-        io.on('getOffer',(data)=> {
-            console.log('get offer')
-           
-            createPeerConnection(data.offerSendId,data.offerSendEmail,data.offerSendnickname,data.audio,data.video,io,localStream)
-            console.log("22222222222"+data.audio+data.video)
-            let pc = pcs[data.offerSendId]
-            if(pc) {
-                pc.setRemoteDescription(new RTCSessionDescription(data.sdp)).then(()=> {
-                    console.log('원격 연결 완료(연결 받기) answer set remote description success')
-                    
-                    pc.createAnswer({
-                        offerToReceiveVideo:true,
-                        offerToReceiveAudio:true})
-                    .then(sdp=> {
-                        console.log('create answer success')
-                        pc.setLocalDescription(new RTCSessionDescription(sdp))
-                        io.emit('answer',{
-                            sdp:sdp,
-                            answerSendID:io.id,
-                            answerREceiveID:data.offerSendId
-
-                        })
-                    }).catch(error=> {
-                        console.log(error)
-                    })
-                })
-            }
-        })
+        
         io.on('getAnswer',(data)=> {
             console.log('get answer')
             let pc = pcs[data.answerSendID]
@@ -245,7 +218,36 @@ function Section(props) {
         
       
     },[])
+    useEffect(()=> {
+        io.on('getOffer',(data)=> {
+            console.log('get offer')
+           
+            createPeerConnection(data.offerSendId,data.offerSendEmail,data.offerSendnickname,data.audio,data.video,io,localStream)
+            console.log("22222222222"+data.audio+data.video)
+            let pc = pcs[data.offerSendId]
+            if(pc) {
+                pc.setRemoteDescription(new RTCSessionDescription(data.sdp)).then(()=> {
+                    console.log('원격 연결 완료(연결 받기) answer set remote description success')
+                    
+                    pc.createAnswer({
+                        offerToReceiveVideo:true,
+                        offerToReceiveAudio:true})
+                    .then(sdp=> {
+                        console.log('create answer success')
+                        pc.setLocalDescription(new RTCSessionDescription(sdp))
+                        io.emit('answer',{
+                            sdp:sdp,
+                            answerSendID:io.id,
+                            answerREceiveID:data.offerSendId
 
+                        })
+                    }).catch(error=> {
+                        console.log(error)
+                    })
+                })
+            }
+        })
+    })
  
 
 //------------------gaze부분 알람 작성 코드 ----------------
