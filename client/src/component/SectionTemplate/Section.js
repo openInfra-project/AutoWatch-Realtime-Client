@@ -27,6 +27,8 @@ function Section(props) {
                 var hm_created = false;
                 var count = 0;
                 window.onload = async function () {
+                    
+                    console.log("sss"+props.userdata.roomname)
                     setInnerText('title','초점을 맞추겠습니다.');
                     //////set callbacks for GazeCloudAPI/////////
                     GazeCloudAPI.OnCalibrationComplete = function () {
@@ -74,6 +76,7 @@ function Section(props) {
                             if (gaze.style.display == 'none')
                                 gaze.style.display = 'block';
                             console.log("Gaze CHECK");
+                            console.log(userdata.roomname)
 
                             setInnerText('title',"Check Your Gaze. If your gaze isn't correct, reset calibration");
                             console.log("change title")
@@ -110,6 +113,13 @@ function Section(props) {
                         // Eyetracking - 이상시선감지 기능
                         if (-80 > docx || docx > 1280 || -80 > docy || docy > 720 ){
                             setInnerText('log_div6','OUT')
+                            console.log("hyewon_out")
+
+                            io.emit('gazealert',{
+                                roomname:userdata.roomname,
+                                nickname:userdata.nickname
+                            })
+                            console.log("hyewon")
                             // 감독관에게 알람!
                         }else{
                             setInnerText('log_div6','IN')

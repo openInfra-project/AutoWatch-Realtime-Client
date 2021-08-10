@@ -31,7 +31,7 @@ function Render() {
                     <>
                         {console.log( <Link to ={`/home/${result.payload.roomname}`}/>  )}
                         <Link to={`/home/${result.payload.roomname}`}  params ={{id:result.payload.roomname}} />
-                        {window.location.assign(`https://cranky-bohr-e0f18a.netlify.app/home/${result.payload.roomname}`)}
+                        {window.location.assign(`http://localhost:3000/home/${result.payload.roomname}`)}
                     </>
                 )
             }).catch(e=> {

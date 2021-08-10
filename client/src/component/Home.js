@@ -40,12 +40,12 @@ function Home() {
     useEffect(()=> {
         //roomname을 잘못 치고 들어온경우
         if(window.performance.navigation.type ===1) {
-            window.location.assign("https://cranky-bohr-e0f18a.netlify.app/errorpage")
+            window.location.assign("http://localhost:3000/errorpage")
             //reload 메세지와 함께 에러페이지로 전송
             
         }
         if(userdata.roomname!==id) {
-            window.location.assign("https://cranky-bohr-e0f18a.netlify.app/errorpage")
+            window.location.assign("http://localhost:3000/errorpage")
             //userdata가 다르다고  에러페이지로 전송
         }
         
