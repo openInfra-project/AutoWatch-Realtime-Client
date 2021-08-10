@@ -1,7 +1,7 @@
 import {TOGGLE_VIDEO_AUDIO} from '../action/index'
 const initialState = {
-    video:false,
-    audio:false,
+    video:true,
+    audio:true,
 }
 function toggleVideoAudio(state=initialState,action) {
     switch(action.type) {

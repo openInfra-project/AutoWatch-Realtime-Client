@@ -4,6 +4,7 @@ import Home from '../component/Home'
 import Gaze from '../component/GazeTemplate/Gaze'
 import Render from '../component/RenderTemplate/Render'
 import ErrorPage from '../component/ErrorTemplate/ErrorPage'
+import Group from '../component/GroupTemplate/Group'
 function Router() {
     return (
         <BrowserRouter>
@@ -12,6 +13,7 @@ function Router() {
                 <Route exact path ="/" component={Render} />
                 <Route path ="/gaze" component={Gaze}/>
                 <Route path = "/errorpage" component = {ErrorPage}/>
+                <Route path = "/group" component = {Group} />
             </Switch>
         
         </BrowserRouter>
