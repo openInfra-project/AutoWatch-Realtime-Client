@@ -3,8 +3,9 @@ import './Section.scss'
 import Video from '../VideoTemplate/index'
 import {Grid} from 'semantic-ui-react'
 import useMedia from '../../useMedia'
-import { useSelector} from 'react-redux'
+import { useDispatch, useSelector} from 'react-redux'
 import { BiLeftArrow } from 'react-icons/bi'
+import {receiveGazeData} from '../../store/action'
 let tempdata= {
     test1:'',
     test2:'',
@@ -13,22 +14,26 @@ let tempdata= {
 function Section(props) {
     //Gaze.js에관한내용
     let success = "fail";
+    var gaze = ""
     // 초기 video 화면 크기 >> 이후 방 입장인원따라 다르게 해주기
     localStorage.setItem('width',"600px");
     localStorage.setItem('height',"400px");
+    const dispatch = useDispatch()
     useEffect(() => {
         const script = document.createElement("script");
         
         script.innerHTML = `
+                
                 var calibrated = false;
                 var gc_started = false;
                 var hm_left = 0;
                 var hm_top = 0;
                 var hm_created = false;
                 var count = 0;
+                // gazeinout 변화를 위한 변수
+                var gazeCount = 0;
                 window.onload = async function () {
                     
-                    console.log("sss"+props.userdata.roomname)
                     setInnerText('title','초점을 맞추겠습니다.');
                     //////set callbacks for GazeCloudAPI/////////
                     GazeCloudAPI.OnCalibrationComplete = function () {
@@ -43,9 +48,10 @@ function Section(props) {
                     GazeCloudAPI.StartEyeTracking(); 
                 
                 }
-     
+               
                 function PlotGaze(GazeData) {
                     // Init setting
+                    
                     document.getElementById('facemaskimgok').style.display="none";
                     
                     var docx = GazeData.docX;
@@ -76,7 +82,7 @@ function Section(props) {
                             if (gaze.style.display == 'none')
                                 gaze.style.display = 'block';
                             console.log("Gaze CHECK");
-                            console.log(userdata.roomname)
+    
 
                             setInnerText('title',"Check Your Gaze. If your gaze isn't correct, reset calibration");
                             console.log("change title")
@@ -112,17 +118,17 @@ function Section(props) {
 
                         // Eyetracking - 이상시선감지 기능
                         if (-80 > docx || docx > 1280 || -80 > docy || docy > 720 ){
-                            setInnerText('log_div6','OUT')
-                            console.log("hyewon_out")
+                            gazeCount++;
+                            if(gazeCount%10==0){
+                                var a = gazeCount/10
+                                setInnerText("log_div6",""+a)
+                                console.log("gazecount스크립트 테스트!"+a)
+                                localStorage.setItem('gazeCount',a);
 
-                            io.emit('gazealert',{
-                                roomname:userdata.roomname,
-                                nickname:userdata.nickname
-                            })
-                            console.log("hyewon")
-                            // 감독관에게 알람!
+                            }
+                            
                         }else{
-                            setInnerText('log_div6','IN')
+                            setInnerText("log_div6","in")
                         }
                     }
                 }
@@ -146,8 +152,26 @@ function Section(props) {
         document.head.appendChild(script)
         success = "success"
         console.log(success)
+        
+        
       });
-   
+   //------------------gaze부분 알람 작성 코드 ----------------
+
+  
+//    gaze  === 시각정보 알람
+//    자신의 데이터를 서버로 보내고, 방장한테 받은 데이터를 보낸다
+   useEffect(()=> {
+        gaze =localStorage.getItem("gazeCount")
+        console.log("gaze useeffect작동되는지 여부 확인"+gaze)
+        io.emit('gazealert',{
+           roomname:userdata.roomname,
+           nickname:userdata.nickname,
+           email:userdata.useremail,
+           gaze:gaze
+       })
+       
+       
+   },[localStorage.getItem("gazeCount")])
     const gazeStyle={
         position: "absolue",
         display:"none",
@@ -157,7 +181,6 @@ function Section(props) {
         border: "solid 2px rgba(255, 255,255, .2)",
         boxShadow: " 0 0 100px 3px rgba(125, 125,125, .5)",
         pointerEvents: "none",
-        zIndex: "999999",
     }
     const titleStyle={
         color:"white"
@@ -413,7 +436,8 @@ function Section(props) {
         //만약 지금 사용자가 방장이면
         //receiveGazeAlert를 받았다면,
         io.on('receiveGazeAlert',(data)=> {
-            alert(`${data}이가 부정행위를 한다!!!`)
+            console.log(`${data.nickname} == ${data.email}이가 부정행위를 ${data.gazecount}번 한다!!!`)
+            dispatch(receiveGazeData(data))
         })
         
        
@@ -426,20 +450,9 @@ function Section(props) {
 
  
 
-//------------------gaze부분 알람 작성 코드 ----------------
-
-    var gaze = ""
-    //gaze  === 시각정보 알람
-    //자신의 데이터를 서버로 보내고, 방장한테 받은 데이터를 보낸다
-    // useEffect(()=> {
-    //     io.emit('gazealert',{
-    //         roomname:userdata.roomname,
-    //         nickname:userdata.nickname
-    //     })
-        
-    // },[gaze])
 
 
+   
 
 
     const createPeerConnection = (socketID, email,nickname ,audio,video,newSocket, localStream)=> {
@@ -519,7 +532,9 @@ function Section(props) {
             <div id="log_div3"></div>
             <div id="log_div4"></div>
             <div id="log_div5"></div>
-            <div id="log_div6"></div>
+            {/* in out 여부 받는 곳 */}
+            <div id="log_div6" >zxc</div>
+
             <h1 id="title" align="center" style={titleStyle}></h1>
             <div id="check_calibration" style={videoStyle}>
                 {/* <h1 id="check_calibration" align="center" style={titleStyle}></h1> */}
