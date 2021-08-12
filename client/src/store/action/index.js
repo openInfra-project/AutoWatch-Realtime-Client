@@ -1,4 +1,4 @@
-import Axios from 'axios'
+
 export const TOGGLE_VIDEO_AUDIO ="TOGGLE_VIDEO_AUDIO"
 export const FETCH_GET_INFORM = "FETCH_GET_INFORM"
 export const RECEIVE_CHAT_DATA = "RECEIVE_CHAT_DATA"
@@ -16,26 +16,7 @@ export const receiveChatData = (data) => {
         data : data
     }
 }
-export const fetchGetInform = async() => {
-   
-    const Data = {
-        roomname:'1234',
-        useremail:'junyoung@naver.com',
-        roomowner:"junyoung@naver.com",
-        nickname:'김준영',
-        session:"",
-        userimage:"",
-        roomtype:0
-    }
-    Axios.defaults.xsrfCookieName = 'csrftoken'
-    Axios.defaults.xsrfHeaderName = 'X-CSRFToken'
-    const response = Axios.post("https://118.67.131.138:30000/main/enteroom/study2"  ,{'a':'test'},
-    { withCredentials: true }).then(response=> {
-        console.log(response.data)
-    }).catch(e=>{
-        console.log(e)
-    })
-    console.log(response)
+export const fetchGetInform = async(Data)=> {
    
     
     // console.log(Data)
