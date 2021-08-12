@@ -15,7 +15,7 @@ import swal from 'sweetalert'
 import Group from './GroupTemplate/Group';
 // const SERVERPATH = "https://118.67.131.138:30010/";
 // 테스트용 서버주소
-const SERVERPATH = "https://localhost:4000/";
+const SERVERPATH = "https://118.67.131.138:30010/";
 const io = socket.connect(SERVERPATH);
 
 function Home() {
@@ -46,10 +46,10 @@ function Home() {
     useEffect(()=> {
         //roomname을 잘못 치고 들어온경우
         if(window.performance.navigation.type ===1) {
-           window.location.assign("http://localhost:3000/errorpage")
+           window.location.assign("https://cranky-bohr-e0f18a.netlify.app/errorpage")
         }
         if(userdata.roomname!==id) {
-            window.location.assign("http://localhost:3000/errorpage")
+            window.location.assign("https://cranky-bohr-e0f18a.netlify.app/errorpage")
             //userdata가 다르다고  에러페이지로 전송
         }
         
@@ -125,7 +125,7 @@ function Home() {
         }).then((value)=> {
             //나중에 장고 페이지로 고치기
             if(value) {
-                window.location.assign("http://localhost:3000/errorpage")
+                window.location.assign("https://cranky-bohr-e0f18a.netlify.app/errorpage")
             }else {
                 //아무 동작 하지 않는다.
                 return;
@@ -148,7 +148,6 @@ function Home() {
     return (
         <>
             <div className="HomeSection" >
-             
                 <Section  setting = {setting} io = {io} userdata = {userdata}/> 
                 <Group setting = {otherGroupsetting.group}/>
                 <Chat  setting = {otherChatsetting.chat} io = {io} userdata = {userdata}/>      

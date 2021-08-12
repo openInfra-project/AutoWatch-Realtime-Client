@@ -3,9 +3,11 @@ import './Section.scss'
 import Video from '../VideoTemplate/index'
 import {Grid} from 'semantic-ui-react'
 import useMedia from '../../useMedia'
-import { useDispatch, useSelector} from 'react-redux'
+import { useDispatch} from 'react-redux'
 import { BiLeftArrow } from 'react-icons/bi'
 import {receiveGazeData} from '../../store/action'
+import { Notify } from "notiflix";
+
 let tempdata= {
     test1:'',
     test2:'',
@@ -23,7 +25,7 @@ function Section(props) {
         const script = document.createElement("script");
         
         script.innerHTML = `
-                
+         
                 var calibrated = false;
                 var gc_started = false;
                 var hm_left = 0;
@@ -64,10 +66,7 @@ function Section(props) {
                     gaze.style.left = docx + "px";
                     gaze.style.top = docy + "px";
                 
-                    setInnerText('log_div',gaze.style.left)
-                    setInnerText('log_div2',gaze.style.top)
-                    setInnerText('log_div3',screen.width)
-                    setInnerText('log_div4',screen.height)
+                 
                 
                     if (GazeData.state != 0) {
                         if (gaze.style.display == 'block')
@@ -112,6 +111,7 @@ function Section(props) {
 
                         if(maskno.style.display == "block"){
                             console.log("자리이탈시");
+                           
                         }
                                             
                         
@@ -121,14 +121,14 @@ function Section(props) {
                             gazeCount++;
                             if(gazeCount%10==0){
                                 var a = gazeCount/10
-                                setInnerText("log_div6",""+a)
+
                                 console.log("gazecount스크립트 테스트!"+a)
                                 localStorage.setItem('gazeCount',a);
 
                             }
                             
                         }else{
-                            setInnerText("log_div6","in")
+      
                         }
                     }
                 }
@@ -145,6 +145,7 @@ function Section(props) {
                     element.innerText 
                         = log ;
                 } 
+              
                 
        `;
         script.type = "text/javascript";
@@ -429,7 +430,7 @@ function Section(props) {
         io.on('user_exit',data=> {
             pcs[data.id].close()
             delete pcs[data.id]
-            alert(`${JSON.stringify(data.nickname)}님이 나갔습니다.`)
+            Notify.failure(`${data.nickname}님이 나갔습니다.`);
             setUsers(oldUsers=>oldUsers.filter(user=> user.id!==data.id))
 
         })
@@ -527,21 +528,14 @@ function Section(props) {
     return (
         <>
 
-            <div id="log_div"></div>
-            <div id="log_div2"></div>
-            <div id="log_div3"></div>
-            <div id="log_div4"></div>
-            <div id="log_div5"></div>
-            {/* in out 여부 받는 곳 */}
-            <div id="log_div6" >zxc</div>
-
+           
             <h1 id="title" align="center" style={titleStyle}></h1>
             <div id="check_calibration" style={videoStyle}>
                 {/* <h1 id="check_calibration" align="center" style={titleStyle}></h1> */}
                 <button id="reset_calibration" align="center" style={buttonStyle} onClick={reset}>RESET</button>
                 <button id="set_calibration" align="center" style={buttonStyle} onClick={set}>SET</button>
             </div>
-            
+          
             <div id="gaze"  style={gazeStyle}>            
             </div>
 
