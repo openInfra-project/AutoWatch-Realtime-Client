@@ -1,13 +1,13 @@
 import { FETCH_GET_INFORM } from "../action/index";
 //roomtype 이 0이면 exam모드 1이면 study 모드
 const initialState = {
-    roomname:'1234',
-    useremail:'junyoung@naver.com',
-    nickname:'김준영',
-    roomowner:'junyoung@naver.com',
+    roomname:'',
+    useremail:'',
+    nickname:'',
+    roomowner:'',
     session:"",
     userimage:"",
-    roomtype:0
+    roomtype:""
 }
 function data(state=initialState,action) {
     switch(action.type) {

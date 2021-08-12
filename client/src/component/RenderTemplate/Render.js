@@ -29,9 +29,10 @@ function Render() {
             userimage:"",
             roomtype:roomtype
         }  
+
         fetchGetInform(Data).then((result)=> {
            
-            dispatch(result)
+            dispatch(fetchGetInform(result))
             //then 뒤에 url 넘겨주어야 해
             swal("" ,{
                 title:result.payload.roomname +"에 입장합니다",
