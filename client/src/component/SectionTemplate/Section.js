@@ -8,11 +8,7 @@ import { BiLeftArrow } from 'react-icons/bi'
 import {receiveGazeData} from '../../store/action'
 import { Notify } from "notiflix";
 
-let tempdata= {
-    test1:'',
-    test2:'',
-    test3:''
-}
+
 function Section(props) {
     //Gaze.js에관한내용
     let success = "fail";
@@ -65,7 +61,10 @@ function Section(props) {
                 
                     gaze.style.left = docx + "px";
                     gaze.style.top = docy + "px";
-                
+                    setInnerText('log_div',gaze.style.left)
+                    setInnerText('log_div2',gaze.style.top)
+                    setInnerText('log_div3',screen.width)
+                    setInnerText('log_div4',screen.height)
                  
                 
                     if (GazeData.state != 0) {
@@ -527,7 +526,13 @@ function Section(props) {
 
     return (
         <>
-
+            <div id="log_div"></div>
+            <div id="log_div2"></div>
+            <div id="log_div3"></div>
+            <div id="log_div4"></div>
+            <div id="log_div5"></div>
+            {/* in out 여부 받는 곳 */}
+            <div id="log_div6" >zxc</div>
            
             <h1 id="title" align="center" style={titleStyle}></h1>
             <div id="check_calibration" style={videoStyle}>

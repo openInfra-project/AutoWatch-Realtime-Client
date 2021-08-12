@@ -1,8 +1,10 @@
 
+
 export const TOGGLE_VIDEO_AUDIO ="TOGGLE_VIDEO_AUDIO"
 export const FETCH_GET_INFORM = "FETCH_GET_INFORM"
 export const RECEIVE_CHAT_DATA = "RECEIVE_CHAT_DATA"
 export const RECEIVE_GAZE_DATA = "RECEIVE_GAZE_DATA"
+
 
 export const toggleVideoAudio = (data)=> {
     return {
@@ -17,10 +19,8 @@ export const receiveChatData = (data) => {
     }
 }
 export const fetchGetInform = async(Data)=> {
-   
-    
     // console.log(Data)
-
+    
     return {
         type:"FETCH_GET_INFORM",
         payload : Data
