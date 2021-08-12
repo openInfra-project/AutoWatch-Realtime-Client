@@ -29,7 +29,8 @@ export const fetchGetInform = async() => {
     }
     Axios.defaults.xsrfCookieName = 'csrftoken'
     Axios.defaults.xsrfHeaderName = 'X-CSRFToken'
-    const response = Axios.post("https://118.67.131.138:30000/main/enteroom/study2",{ withCredentials: true }).then(response=> {
+    const response = Axios.post("https://118.67.131.138:30000/main/enteroom/study2"  ,{'a':'test'},
+    { withCredentials: true }).then(response=> {
         console.log(response.data)
     }).catch(e=>{
         console.log(e)
