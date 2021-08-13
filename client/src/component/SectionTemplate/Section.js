@@ -130,6 +130,10 @@ function Section(props) {
   
 //    gaze  === 시각정보 알람
 //    자신의 데이터를 서버로 보내고, 방장한테 받은 데이터를 보낸다
+    setInterval(() => {
+        localStorage.getItem("gazeCount")
+        localStorage.getItem("boundCount")
+    }, 1000);
    useEffect(()=> {
        if(userdata.useremail !== userdata.roomowner) {
             gaze =localStorage.getItem("gazeCount")
