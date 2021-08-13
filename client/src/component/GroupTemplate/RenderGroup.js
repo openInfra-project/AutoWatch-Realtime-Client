@@ -1,5 +1,6 @@
 import React ,{useRef}from 'react'
 import {useSelector} from 'react-redux'
+import moment from 'moment'
 function RenderGroup() {
     const gazes = useSelector(state=> state.receiveGazeData)
     var messageEnd = useRef()
@@ -17,20 +18,17 @@ function RenderGroup() {
                         {console.log("index"+index)} 
                         <div key = {index} className="Groupmessage">
                                 <div className="Groupmessageinner">
-                                    <p className="Groupmessageinnername">{data.nickname}</p>
-                                    <p className="Groupmessageinnertime">오후 10:51</p>
+                                    <p className="Groupmessageinnertime">{moment().format('HH:mm:ss')}</p>
                                 </div>
                                 <p className="Groupng-binding">
-                                 {`${data.nickname} == ${data.email}이가 부정행위를 ${data.gazecount}번 한다!!!`}
+                                 {`${data.nickname} == ${data.email}의 시선처리 경고${data.gazecount}번 자리이탈 경고 ${data.boundcount}`}
                                 </p>    
                         
                         </div>
                     </>
                 ))}
             </div>
-            <div className="GroupPostCheck">
-		      	<div className="btn btn-orange"> 시험 종료 알림 </div>			
-            </div>
+          
         </>
         
     )

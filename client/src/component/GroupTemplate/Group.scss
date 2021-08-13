@@ -33,23 +33,7 @@
       margin-top: 10rem;
       font-weight: 400;
     }
-    .GroupPostCheck{
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-      .btn-orange{
-        background-color: rgb(8, 142, 195);
-        border-color: rgb(8, 142, 195);
-        -webkit-box-shadow: 0 3px 0 rgb(8, 142, 195);
-        box-shadow: 0 3px 0 rgb(8, 142, 195);
-        color:black;
-        text-align: center;
-        cursor: pointer;
-        font-weight: 400;
-      }
-
-      .btn.btn-orange:hover{background-color:rgb(8, 52, 195);}
-    }
+   
 }
 @keyframes trues {
     0% {

@@ -1,0 +1,20 @@
+.infocontainer {
+    display:flex;
+    flex-direction: row;
+    justify-content: space-between;
+    .info_p {
+        color: white;
+        font-size: 1rem;
+        font-weight: 400;
+        padding:.5rem;
+        
+    }
+    .GIICON {
+        color: white;
+        font-size: 1rem;
+        font-weight: 400;
+        padding:.5rem;
+        width: 1rem;
+        height:1rem;
+    }
+}

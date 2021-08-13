@@ -1,5 +1,6 @@
 import React,{useEffect,useState,useRef} from 'react'
 import { useSelector } from 'react-redux'
+import moment from 'moment'
 var testdata = []
 function RenderChat() {
   
@@ -26,8 +27,8 @@ function RenderChat() {
                         {console.log("index"+index)} 
                         <div key = {index} className="message">
                                 <div className="messageinner">
-                                    <p className="messageinnername">{data.nickname}</p>
-                                    <p className="messageinnertime">오후 10:51</p>
+                                    <p className="messageinnername">{data.nickname}님</p>
+                                    <p className="messageinnertime">{moment().format('HH:mm:ss')}</p>
                                 </div>
                                 <p className="ng-binding">
                                     {data.chatdata}

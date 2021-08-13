@@ -11,6 +11,7 @@ function Section(props) {
     //Gaze.js에관한내용
     let success = "fail";
     var gaze = ""
+    var bound=""
     
     // 초기 video 화면 크기 >> 이후 방 입장인원따라 다르게 해주기
     localStorage.setItem('width',"500px");
@@ -19,7 +20,8 @@ function Section(props) {
     useEffect(() => {
         console.log("props.usersetting"+JSON.stringify(props.userdata))
         const script = document.createElement("script");
-        if(props.userdata.roomtype==="EXAM"){
+        // 해당 방이 시험 모드일때와 입장하는 사람이 방장이 아닐경우 Gaze 함수가 동작한다.
+        if(props.userdata.roomtype==="EXAM" && props.userdata.roomowner !==props.userdata.useremail){
             // document.getElementById("showvideoid").style.display = "none"
      
             script.innerHTML = `
@@ -32,6 +34,7 @@ function Section(props) {
                 var count = 0;
                 // gazeinout 변화를 위한 변수
                 var gazeCount = 0;
+                var boundCount = 0;
                     //////set callbacks for GazeCloudAPI/////////
                     GazeCloudAPI.OnCalibrationComplete = function () {
                         console.log('gaze Calibration Complete');
@@ -41,11 +44,8 @@ function Section(props) {
                     GazeCloudAPI.OnError = function (msg) { console.log('err: ' + msg) }
                     GazeCloudAPI.UseClickRecalibration = true;
                     GazeCloudAPI.OnResult = PlotGaze;
-
                     GazeCloudAPI.StartEyeTracking(); 
-                
-                
-               
+  
                 function PlotGaze(GazeData) {
                     // Init setting
                     
@@ -78,11 +78,10 @@ function Section(props) {
                         // video.style.height = localStorage.getItem('height');
                         // video.style.width = localStorage.getItem('width');
 
-                     
-                        if(maskno.style.display == "block"){
-                            
-                            console.log("자리이탈시");
-                           
+                        
+                        if(maskno.style.display == "block"){          
+                            boundCount++;
+                            localStorage.setItem("boundCount",boundCount)
                         }
                                             
                         
@@ -109,6 +108,7 @@ function Section(props) {
                 
                 // Set to true if you want to save the data even if you reload the page.
                 window.saveDataAcrossSessions = true;
+                
 
                 // div 내용 바꾸기
                 function setInnerText(id,log) {
@@ -131,17 +131,23 @@ function Section(props) {
 //    gaze  === 시각정보 알람
 //    자신의 데이터를 서버로 보내고, 방장한테 받은 데이터를 보낸다
    useEffect(()=> {
-        gaze =localStorage.getItem("gazeCount")
-        console.log("gaze useeffect작동되는지 여부 확인"+gaze)
-        io.emit('gazealert',{
-           roomname:userdata.roomname,
-           nickname:userdata.nickname,
-           email:userdata.useremail,
-           gaze:gaze
-       })
+       if(userdata.useremail !== userdata.roomowner) {
+            gaze =localStorage.getItem("gazeCount")
+            bound = localStorage.getItem("boundCount")
+            console.log("gaze useeffect작동되는지 여부 확인"+gaze)
+            console.log("bound는?"+bound)
+            io.emit('gazealert',{
+                roomname:userdata.roomname,
+                nickname:userdata.nickname,
+                email:userdata.useremail,
+                gaze:gaze,
+                bound:bound
+            })
+       }
        
        
-   },[localStorage.getItem("gazeCount")])
+       
+   },[localStorage.getItem("gazeCount"),localStorage.getItem("boundCount")])
     const gazeStyle={
         position: "absolue",
         display:"none",
@@ -294,7 +300,7 @@ function Section(props) {
                 console.log("현재 방의 참가자는 :"+allUsers[i].id)
                 console.log('io의 아이디'+io.id)
                 
-                createPeerConnection(allUsers[i].id,allUsers[i].email,allUsers[i].nickname,allUsers[i].audio,allUsers[i].video,io,localStream)
+                createPeerConnection(allUsers[i].id,allUsers[i].email,allUsers[i].nickname,allUsers[i].roomowner ,allUsers[i].audio,allUsers[i].video,io,localStream)
                 let pc = pcs[allUsers[i].id]
                 
                 if(pc){
@@ -306,11 +312,6 @@ function Section(props) {
                     //증명을 유지하고 ICE를 다시 시작하지 않도록 지정 합니다. 
                     //기본값은 false 입니다.
                     //re rendering 되더라도 자격증명이 똑같으면 offer이 새로 되지 않는다
-                 
-                    
-
-                 
-                   
                     pc.createOffer({
                         iceRestart : true,
                         offerToReceiveAudio:true,
@@ -323,8 +324,9 @@ function Section(props) {
                         io.emit('offer',{
                             sdp:sdp,
                             offerSendId:io.id,
-                            offerSendEmail:allUsers[i].email,
-                            offerSendNickname:allUsers[i].nickname,
+                            offerSendEmail:userdata.useremail,
+                            offerSendNickname:userdata.nickname,
+                            offerroomowner:userdata.roomowner,
                             offerReciveID:allUsers[i].id,
                             audio:mydata.audio,
                             video:mydata.video
@@ -340,7 +342,7 @@ function Section(props) {
         io.on('getOffer',(data)=> {
             console.log('get offer')
             
-            createPeerConnection(data.offerSendId,data.offerSendEmail,data.offerSendnickname,data.audio,data.video,io,localStream)
+            createPeerConnection(data.offerSendId,data.offerSendEmail,data.offerSendnickname,data.offerroomowner,data.audio,data.video,io,localStream)
             console.log("22222222222"+data.audio+data.video)
             let pc = pcs[data.offerSendId]
             if(pc) {
@@ -410,9 +412,8 @@ function Section(props) {
    
 
 
-    const createPeerConnection = (socketID, email,nickname ,audio,video,newSocket, localStream)=> {
+    const createPeerConnection = (socketID, email,nickname,roomowner ,audio,video,newSocket, localStream)=> {
         let pc = new RTCPeerConnection(pcConfig);
-        console.log("aaaaa"+video+audio+JSON.stringify(users))
         if (localStream) {
             console.log('localstream add');
             localStream.getTracks().forEach(track => {
@@ -449,6 +450,7 @@ function Section(props) {
             id: socketID,
             email: email,
             nickname:nickname,
+            roomowner:roomowner,
             audio:audio,
             video:video,
             stream: e.streams[0]
@@ -503,12 +505,12 @@ function Section(props) {
                 <Grid divided = "vertically">
                     <Grid.Row columns = {columnCount}>
                         {users.map((user,index)=> {
-                            console.log(""+user.video+user.audio)
                             return (
                                 <Video
                                     key={index}
                                     email={user.email}
                                     nickname = {user.nickname}
+                                    roomowner = {user.roomowner}
                                     audio = {user.audio}
                                     video = {user.video}
                                     stream={user.stream}

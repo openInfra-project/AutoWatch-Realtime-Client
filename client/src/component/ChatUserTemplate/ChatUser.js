@@ -3,9 +3,8 @@ function ChatUser(props) {
     return(
         <>
          <div ng-repeat="chat in chats" className="ng-scope">
-            <li ng-click="uid(chat.id)">
-                <img className="avatar" src={props.src}/>
-                <p className="username ng-binding">{props.username}</p>
+            <li ng-click="uid(chat.id)">   
+                <p className="username ng-binding" style={{fontSize:'18px',textAlign:'center'}}>{props.username}</p>
             </li>
         </div>
         </>

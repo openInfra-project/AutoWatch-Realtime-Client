@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Styled from 'styled-components';
-
+import './index.scss'
+import {GiChessKing} from 'react-icons/gi'
 const Container = Styled.div`
     position: relative;
     display: inline-block;
@@ -13,16 +14,10 @@ const VideoContainer = Styled.video`
    
 `;
 
-const UserLabel = Styled.p`
-    display: inline-block;
-    position: absolute;
-    top: 230px;
-    left: 0px;
-`;
 
 
 
-function Video({email, nickname,stream, audio,video}) {
+function Video({email, nickname,stream, roomowner,audio,video}) {
     const ref = useRef(null);
     const [aa,saa] = useState(false)
     console.log(typeof audio)
@@ -60,8 +55,14 @@ function Video({email, nickname,stream, audio,video}) {
                 muted = {!audio}
                 autoPlay
             ></video>
-            <UserLabel>{email}</UserLabel>
-            <UserLabel>{nickname}</UserLabel>
+            <div className="infocontainer">
+                <div>
+                    {roomowner===email ? <GiChessKing className="GIICON"/>:<p className="info_p">{nickname}</p> }
+                    
+                </div>
+                <p className="info_p">{email}</p>    
+            </div>
+
         </Container>
     );
 }
