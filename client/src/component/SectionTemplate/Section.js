@@ -7,20 +7,22 @@ import { useDispatch} from 'react-redux'
 import { BiLeftArrow } from 'react-icons/bi'
 import {receiveGazeData} from '../../store/action'
 import { Notify } from "notiflix";
-
-
 function Section(props) {
     //Gaze.js에관한내용
     let success = "fail";
     var gaze = ""
+    
     // 초기 video 화면 크기 >> 이후 방 입장인원따라 다르게 해주기
-    localStorage.setItem('width',"600px");
-    localStorage.setItem('height',"400px");
+    localStorage.setItem('width',"500px");
+    localStorage.setItem('height',"300px");
     const dispatch = useDispatch()
     useEffect(() => {
+        console.log("props.usersetting"+JSON.stringify(props.userdata))
         const script = document.createElement("script");
-        
-        script.innerHTML = `
+        if(props.userdata.roomtype==="EXAM"){
+            // document.getElementById("showvideoid").style.display = "none"
+     
+            script.innerHTML = `
          
                 var calibrated = false;
                 var gc_started = false;
@@ -30,9 +32,6 @@ function Section(props) {
                 var count = 0;
                 // gazeinout 변화를 위한 변수
                 var gazeCount = 0;
-                window.onload = async function () {
-                    
-                    setInnerText('title','초점을 맞추겠습니다.');
                     //////set callbacks for GazeCloudAPI/////////
                     GazeCloudAPI.OnCalibrationComplete = function () {
                         console.log('gaze Calibration Complete');
@@ -45,7 +44,7 @@ function Section(props) {
 
                     GazeCloudAPI.StartEyeTracking(); 
                 
-                }
+                
                
                 function PlotGaze(GazeData) {
                     // Init setting
@@ -61,10 +60,7 @@ function Section(props) {
                 
                     gaze.style.left = docx + "px";
                     gaze.style.top = docy + "px";
-                    setInnerText('log_div',gaze.style.left)
-                    setInnerText('log_div2',gaze.style.top)
-                    setInnerText('log_div3',screen.width)
-                    setInnerText('log_div4',screen.height)
+
                  
                 
                     if (GazeData.state != 0) {
@@ -73,42 +69,18 @@ function Section(props) {
                     }
                     else {
                         var video =  document.getElementById('showvideoid');
+                        // vidoe.style.display = "none"
 
-                        count = count + 1;
-                        if (count == 1){
-                            //초점 확인 단계
-                            if (gaze.style.display == 'none')
-                                gaze.style.display = 'block';
-                            console.log("Gaze CHECK");
-    
 
-                            setInnerText('title',"Check Your Gaze. If your gaze isn't correct, reset calibration");
-                            console.log("change title")
-                            video.style.display = "none";
-                            video.style.margin = "auto";
-                            document.getElementById('check_calibration').style.display = "block";
-
-                           //일정시간지나면 버튼클릭안해도 SET으로
-                            setTimeout(() => {
-                                console.log("CHECK_TIMEOUT")
-                                document.getElementById('check_calibration').style.display = "none";
-                                document.getElementById('title').style.display = "none";
-                                document.getElementById('gaze').style.display = "none";
-                                video.style.display = "block";
-                            }, 10000)
-                            
-                            
-                        }
                         
                         var maskno = document.getElementById('facemaskimgno');
                         document.getElementById('camid').style.opacity = "1";
-                        video.style.height = localStorage.getItem('height');
-                        video.style.width = localStorage.getItem('width');
+                        // video.style.height = localStorage.getItem('height');
+                        // video.style.width = localStorage.getItem('width');
 
-                        maskno.style.height = localStorage.getItem('height');
-                        maskno.style.width = localStorage.getItem('width');
-
+                     
                         if(maskno.style.display == "block"){
+                            
                             console.log("자리이탈시");
                            
                         }
@@ -143,10 +115,8 @@ function Section(props) {
                     const element = document.getElementById(id);
                     element.innerText 
                         = log ;
-                } 
-              
-                
-       `;
+                }`
+        };
         script.type = "text/javascript";
         script.async = "async";
         document.head.appendChild(script)
@@ -185,25 +155,10 @@ function Section(props) {
     const titleStyle={
         color:"white"
     }
-    const videoStyle={
-        display:"none"
-    }
-    const buttonStyle={
-        fontSize: "32px",
-        padding: "10px 10px",
-        float: "left"
-    }
-    function reset(){
-        window.location.reload();
-        console.log("RESET");
-    }
-    function set(){
-        document.getElementById('check_calibration').style.display = "none";
-        document.getElementById('title').style.display = "none";
-        document.getElementById('gaze').style.display = "none";
-        document.getElementById('showvideoid').style.display = "block";        
-        console.log("SET");
-    }
+    
+  
+ 
+    
     
 
 
@@ -282,7 +237,7 @@ function Section(props) {
                 console.log(stream.getTracks())
                 
                 localStream = stream
-                videolocalref.current.srcObject = stream
+                videolocalref.current.srcObject = stream 
                  
                 io.emit('join room',{
                     'room':userdata.roomname,
@@ -526,20 +481,10 @@ function Section(props) {
 
     return (
         <>
-            <div id="log_div"></div>
-            <div id="log_div2"></div>
-            <div id="log_div3"></div>
-            <div id="log_div4"></div>
-            <div id="log_div5"></div>
-            {/* in out 여부 받는 곳 */}
-            <div id="log_div6" >zxc</div>
+
            
             <h1 id="title" align="center" style={titleStyle}></h1>
-            <div id="check_calibration" style={videoStyle}>
-                {/* <h1 id="check_calibration" align="center" style={titleStyle}></h1> */}
-                <button id="reset_calibration" align="center" style={buttonStyle} onClick={reset}>RESET</button>
-                <button id="set_calibration" align="center" style={buttonStyle} onClick={set}>SET</button>
-            </div>
+         
           
             <div id="gaze"  style={gazeStyle}>            
             </div>
@@ -550,7 +495,8 @@ function Section(props) {
                     id="showvideoid"
                     muted
                     ref={videolocalref}
-                    style={videoStyle}
+                 
+
                     autoPlay>
                 </video>
                 {console.log("길이"+users.length)}

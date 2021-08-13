@@ -8,8 +8,13 @@ function Group(props) {
     <>
       <div className="GroupContainer" style={{animationName:props.setting.toString()+"s"||"falses"}}>
         <div className="Groupinit">
-          <RenderGroup />
+          <p className="Groupmanager">관리자가 아닐시 보이지 않습니다.</p>
+          {
+            props.userdata === "EXAM" ?  <RenderGroup /> : <p className="Groupp">STUDY 모드에서는 유효하지 않습니다.</p>
+          }
+         
         </div>
+        
       </div>
     </>
   )

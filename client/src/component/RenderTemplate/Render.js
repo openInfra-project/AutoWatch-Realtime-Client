@@ -32,7 +32,7 @@ function Render() {
         
         fetchGetInform(Data).then((result)=> {
            dispatch(result)
-            
+            // window.location.assign(`http://localhost:3000/home/${result.payload.roomname}`)
   
             // swal("" ,{
             //     title:result.payload.roomname +"에 입장합니다",
@@ -71,7 +71,7 @@ function Render() {
 
                             <div className="swal-icon--success__ring"></div>
                             <div className="swal-icon--success__hide-corners"></div>
-                        </div><div className="swal-title" >{roomname}에 입장합니다</div><div className="swal-text" >{nickname}님 환영합니다</div><div className="swal-footer"><div className="swal-button-container">
+                        </div><div className="swal-title" >{roomname}에 입장합니다</div><div className="swal-text" >{nickname}님 초점 페이지로 이동하겠습니다.</div><div className="swal-footer"><div className="swal-button-container">
 
                             <Link className="swal-button swal-button--confirm" to={`/home/${roomname}`}  params ={{id:roomname}}>OK</Link>
 

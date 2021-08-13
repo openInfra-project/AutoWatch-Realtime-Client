@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react'
 import Section from './SectionTemplate/Section'
 import socket from 'socket.io-client'
 import './Home.scss'
-import {AiOutlineAudioMuted, AiOutlineAudio,AiOutlineVideoCamera,AiOutlineFullscreen,AiOutlineUsergroupAdd} from "react-icons/ai";
+import {AiOutlineAudioMuted, AiOutlineAudio,AiOutlineVideoCamera} from "react-icons/ai";
 import {BiVideoOff} from 'react-icons/bi'
 import {ImExit} from 'react-icons/im'
-import { BsChatSquareDots } from "react-icons/bs";
+import { BsChatSquareDots ,BsPersonCheck} from "react-icons/bs";
 import { useDispatch, useSelector } from 'react-redux';
 import {toggleVideoAudio} from '../store/action/index'
 import Chat from './ChatTemplate/Chat';
@@ -13,11 +13,14 @@ import { useParams } from 'react-router-dom'
 import swal from 'sweetalert'
 
 import Group from './GroupTemplate/Group';
+//배포용 서버 주소
 // const SERVERPATH = "https://118.67.131.138:30010/";
 // 테스트용 서버주소
+//const SERVERPATH = "https://localhost:4000/";
 const SERVERPATH = "https://118.67.131.138:30010/";
 const io = socket.connect(SERVERPATH);
 
+let start =Date.now()
 function Home() {
  
     const dispatch = useDispatch()
@@ -45,13 +48,13 @@ function Home() {
     const {id} = useParams() // roomname
     useEffect(()=> {
         //roomname을 잘못 치고 들어온경우
-        if(window.performance.navigation.type ===1) {
-           window.location.assign("https://cranky-bohr-e0f18a.netlify.app/errorpage")
-        }
-        if(userdata.roomname!==id) {
-            window.location.assign("https://cranky-bohr-e0f18a.netlify.app/errorpage")
-            //userdata가 다르다고  에러페이지로 전송
-        }
+        // if(window.performance.navigation.type ===1) {
+        //    window.location.assign("https://cranky-bohr-e0f18a.netlify.app/errorpage")
+        // }
+        // if(userdata.roomname!==id) {
+        //     window.location.assign("https://cranky-bohr-e0f18a.netlify.app/errorpage")
+        //     //userdata가 다르다고  에러페이지로 전송
+        // }
         
 
     },[])
@@ -125,7 +128,10 @@ function Home() {
         }).then((value)=> {
             //나중에 장고 페이지로 고치기
             if(value) {
-                window.location.assign("https://cranky-bohr-e0f18a.netlify.app/errorpage")
+                // window.location.assign("https://cranky-bohr-e0f18a.netlify.app/errorpage")
+                let end = Date.now()
+                //django 서버로 연결되어있던 시간을 보내주기 위함.
+                window.location.assign(`https://118.67.131.138:30000/main/roomout/${end-start}`)
             }else {
                 //아무 동작 하지 않는다.
                 return;
@@ -149,7 +155,7 @@ function Home() {
         <>
             <div className="HomeSection" >
                 <Section  setting = {setting} io = {io} userdata = {userdata}/> 
-                <Group setting = {otherGroupsetting.group}/>
+                <Group setting = {otherGroupsetting.group} userdata=  {userdata.roomtype}/>
                 <Chat  setting = {otherChatsetting.chat} io = {io} userdata = {userdata}/>      
                 <div className="footer">
                     <div className="menu">
@@ -179,9 +185,9 @@ function Home() {
                                 </div>
                                
                                 <div className="previewInform">
-                                    <div id = "zxc5" className="preview_p">그룹</div>
+                                    <div id = "zxc5" className="preview_p">관리자 모드</div>
                                     <div className="circleIcon" onClick={onClickGroup} onMouseOver={()=>onMouseover("zxc5")} onMouseLeave={()=>onMouseLeave("zxc5")}>
-                                      <AiOutlineUsergroupAdd className="icon fullscreen"/>
+                                      <BsPersonCheck className="icon fullscreen"/>
                                     </div>      
                                 </div>
                                 <div className="previewInform">

@@ -22,13 +22,17 @@ function RenderGroup() {
                                 </div>
                                 <p className="Groupng-binding">
                                  {`${data.nickname} == ${data.email}이가 부정행위를 ${data.gazecount}번 한다!!!`}
-                                </p>
+                                </p>    
                         
                         </div>
                     </>
                 ))}
             </div>
+            <div className="GroupPostCheck">
+		      	<div className="btn btn-orange"> 시험 종료 알림 </div>			
+            </div>
         </>
+        
     )
 }
 export default RenderGroup
