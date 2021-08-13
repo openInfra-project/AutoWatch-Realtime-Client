@@ -7,11 +7,47 @@ import { useDispatch} from 'react-redux'
 import { BiLeftArrow } from 'react-icons/bi'
 import {receiveGazeData} from '../../store/action'
 import { Notify } from "notiflix";
+var gazeOption = {
+    gaze:"",
+    bound:""
+}
+function GazeSection(io,userdata,gaze,bound) {
+    //------------------gaze부분 알람 작성 코드 ----------------
+
+
+
+    //    gaze  === 시각정보 알람
+    //    자신의 데이터를 서버로 보내고, 방장한테 받은 데이터를 보낸다
+        
+   
+     
+      
+       
+    
+   
+ 
+    if(gazeOption.gaze!==gaze || gazeOption.bound!==bound){
+        gazeOption.gaze =gaze
+        gazeOption.bound = bound
+        console.log(`바뀌엇냐? ${gazeOption.gaze}  = ${gaze}`)
+        console.log(`바뀌엇냐?2 ${gazeOption.bound}  = ${bound}`)
+        io.emit('gazealert',{
+            roomname:userdata.roomname,
+            nickname:userdata.nickname,
+            email:userdata.useremail,
+            gazeOption:gazeOption
+        })
+    }
+   
+    
+    
+        
+   
+}
 function Section(props) {
     //Gaze.js에관한내용
     let success = "fail";
-    var gaze = ""
-    var bound=""
+    
     
     // 초기 video 화면 크기 >> 이후 방 입장인원따라 다르게 해주기
     localStorage.setItem('width',"500px");
@@ -34,6 +70,8 @@ function Section(props) {
                 var count = 0;
                 // gazeinout 변화를 위한 변수
                 var gazeCount = 0;
+                localStorage.setItem("gazeCount",0);
+                localStorage.setItem("boundCount",0);
                 var boundCount = 0;
                     //////set callbacks for GazeCloudAPI/////////
                     GazeCloudAPI.OnCalibrationComplete = function () {
@@ -81,7 +119,12 @@ function Section(props) {
                         
                         if(maskno.style.display == "block"){          
                             boundCount++;
-                            localStorage.setItem("boundCount",boundCount)
+                            if(boundCount%10==0){
+                                var b = boundCount/10;
+                                localStorage.setItem("boundCount",b)
+                            }
+                           
+                            
                         }
                                             
                         
@@ -90,9 +133,9 @@ function Section(props) {
                         if (-80 > docx || docx > 1280 || -80 > docy || docy > 720 ){
                             gazeCount++;
                             if(gazeCount%10==0){
-                                var a = gazeCount/10
+                                var a = gazeCount/10;
 
-                                console.log("gazecount스크립트 테스트!"+a)
+                                console.log("gazecount스크립트 테스트!"+a);
                                 localStorage.setItem('gazeCount',a);
 
                             }
@@ -122,36 +165,17 @@ function Section(props) {
         document.head.appendChild(script)
         success = "success"
         console.log(success)
+        setInterval(() => {
+            if(userdata.useremail!==userdata.roomowner &&userdata.roomtype==="EXAM"){
+                GazeSection(io,userdata,localStorage.getItem('gazeCount'),localStorage.getItem('boundCount'))
+            }
+            
+        }, 5000);
         
         
       });
-   //------------------gaze부분 알람 작성 코드 ----------------
-
+      
   
-//    gaze  === 시각정보 알람
-//    자신의 데이터를 서버로 보내고, 방장한테 받은 데이터를 보낸다
-    setInterval(() => {
-        localStorage.getItem("gazeCount")
-        localStorage.getItem("boundCount")
-    }, 1000);
-   useEffect(()=> {
-       if(userdata.useremail !== userdata.roomowner) {
-            gaze =localStorage.getItem("gazeCount")
-            bound = localStorage.getItem("boundCount")
-            console.log("gaze useeffect작동되는지 여부 확인"+gaze)
-            console.log("bound는?"+bound)
-            io.emit('gazealert',{
-                roomname:userdata.roomname,
-                nickname:userdata.nickname,
-                email:userdata.useremail,
-                gaze:gaze,
-                bound:bound
-            })
-       }
-       
-       
-       
-   },[localStorage.getItem("gazeCount"),localStorage.getItem("boundCount")])
     const gazeStyle={
         position: "absolue",
         display:"none",
@@ -397,7 +421,8 @@ function Section(props) {
         //만약 지금 사용자가 방장이면
         //receiveGazeAlert를 받았다면,
         io.on('receiveGazeAlert',(data)=> {
-            console.log(`${data.nickname} == ${data.email}이가 부정행위를 ${data.gazecount}번 한다!!!`)
+            console.log(`receive: ${data.nickname} == ${data.email}이가 부정행위를 ${data.gazeOption.gaze}번 한다!!!`)
+            Notify.warning("부정행위 알림")
             dispatch(receiveGazeData(data))
         })
         

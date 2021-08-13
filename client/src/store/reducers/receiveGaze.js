@@ -10,7 +10,7 @@ function receiveGazeData(state= initialState,action) {
             const checkDuplicate = state.arr.filter(user=>user.email ===action.data.email)
 
             if(checkDuplicate.length>0) {
-                checkDuplicate[0].gazecount = action.data.gazecount
+                checkDuplicate[0].gazeOption = action.data.gazeOption
                 return{
                     ...state,
                     arr:checkDuplicate

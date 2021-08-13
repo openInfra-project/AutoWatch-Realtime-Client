@@ -21,7 +21,7 @@ function RenderGroup() {
                                     <p className="Groupmessageinnertime">{moment().format('HH:mm:ss')}</p>
                                 </div>
                                 <p className="Groupng-binding">
-                                 {`${data.nickname} == ${data.email}의 시선처리 경고${data.gazecount}번 자리이탈 경고 ${data.boundcount}`}
+                                 {`${data.nickname} == ${data.email}의 시선처리 경고${data.gazeOption.gaze}번 자리이탈 경고 ${data.gazeOption.bound}`}
                                 </p>    
                         
                         </div>
