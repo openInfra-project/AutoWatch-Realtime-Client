@@ -18,10 +18,10 @@ function RenderGroup() {
                         {console.log("index"+index)} 
                         <div key = {index} className="Groupmessage">
                                 <div className="Groupmessageinner">
-                                    <p className="Groupmessageinnertime">{moment().format('HH:mm:ss')}</p>
+                                    
                                 </div>
                                 <p className="Groupng-binding">
-                                 {`${data.nickname} == ${data.email}의 시선처리 경고${data.gazeOption.gaze}번 자리이탈 경고 ${data.gazeOption.bound}`}
+                                 {`${data.nickname}님의 시선처리 경고${data.gazeOption.gaze}번 자리이탈 경고 ${data.gazeOption.bound}번 하였습니다.`}
                                 </p>    
                         
                         </div>

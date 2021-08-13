@@ -80,7 +80,7 @@ function Chat(props) {
                                 id="chatinput"
                                 onChange={e=>onChange(e)}
                                 className = "textarea_input" 
-                                
+                                autoComplete="off"
                                 type ="text" 
                                 placeholder="메세지를 입력하세요" />
                             <input type = "submit" value ="=>" className="submitIcon"/>
