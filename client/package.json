@@ -35,9 +35,9 @@
     "sweetalert2": "^11.1.2",
     "web-vitals": "^1.1.2"
   },
-  "homepage": "https://cranky-bohr-e0f18a.netlify.app/",
+  "homepage": "https://118.67.131.138:30020/",
   "scripts": {
-    "start": "react-scripts start",
+    "start": "HTTPS=true SSL_CRT_FILE=/usr/app/django.cert SSL_KEY_FILE=/usr/app/private.key react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
