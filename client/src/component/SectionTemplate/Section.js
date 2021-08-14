@@ -107,17 +107,29 @@ function Section(props) {
                     }
                     else {
                         var video =  document.getElementById('showvideoid');
-                        // vidoe.style.display = "none"
+                        // video.style.display = "none"
 
 
-                        
+                        var camid = document.getElementById('camid');
+                        camid.style.position = "absolute";
+                        camid.style.left = "30%";
+                        camid.style.top = "5%";
+
+
                         var maskno = document.getElementById('facemaskimgno');
+                        
                         document.getElementById('camid').style.opacity = "1";
                         // video.style.height = localStorage.getItem('height');
                         // video.style.width = localStorage.getItem('width');
-
+                        video.style.margin = "5px";
+                        video.style.width = "81%";
+                        video.style.height = "50%";
                         
-                        if(maskno.style.display == "block"){          
+                        if(maskno.style.display == "block"){
+                            maskno.style.margin = "5px";
+                            maskno.style.width = "80%";
+                            maskno.style.height = "100%";
+                            
                             boundCount++;
                             if(boundCount%10==0){
                                 var b = boundCount/10;
@@ -517,10 +529,12 @@ function Section(props) {
             <h1 id="title" align="center" style={titleStyle}></h1>
          
           
-            <div id="gaze"  style={gazeStyle}>            
-            </div>
+            {/* <div id="gaze"  style={gazeStyle}>            
+            </div> */}
 
-            <div className="SectionContainer">          
+            <div className="SectionContainer">     
+                <div id="gaze"  style={gazeStyle}>            
+                </div>     
                 <video
                     className="video"
                     id="showvideoid"

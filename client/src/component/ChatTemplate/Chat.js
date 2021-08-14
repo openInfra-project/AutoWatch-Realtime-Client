@@ -83,7 +83,7 @@ function Chat(props) {
                                 autoComplete="off"
                                 type ="text" 
                                 placeholder="메세지를 입력하세요" />
-                            <input type = "submit" value ="=>" className="submitIcon"/>
+                            <input type = "submit" value ="전송" className="submitIcon"/>
                         </form>
                     </footer>
                 </main>

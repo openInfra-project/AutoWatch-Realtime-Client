@@ -19,29 +19,25 @@ const VideoContainer = Styled.video`
 
 function Video({email, nickname,stream, roomowner,audio,video}) {
     const ref = useRef(null);
-    const [aa,saa] = useState(false)
+ 
     console.log(typeof audio)
     console.log(!audio)
     useEffect(() => {
         console.log("audio와 video "+audio +" , "+video)
         if (ref.current) ref.current.srcObject = stream;
         if(audio===false) {
-            ref.current.defaultMuted = true;
-            ref.current.muted = true
-            document.getElementById("videoindex").muted = true
-            saa(!aa)
+            
+            
 
         }else {
-            document.getElementById("videoindex").muted = false
-            saa(!aa)
-            // ref.current.muted = false
-            // document.getElementById("videoindex").muted = true
+            ref.current.srcObject = stream;
         }
         if(video===false) {
             ref.current.srcObject = null
         }else {
             ref.current.srcObject = stream;
         }
+       
     },[])
 
     return (
@@ -52,7 +48,7 @@ function Video({email, nickname,stream, roomowner,audio,video}) {
                     backgroundColor: "black"}}
                 id ="videoindex"
                 ref={ref}
-                muted = {!audio}
+                muted = {true}
                 autoPlay
             ></video>
             <div className="infocontainer">
