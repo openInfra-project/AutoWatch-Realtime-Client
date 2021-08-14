@@ -98,6 +98,8 @@
       padding-top: 10px;
       white-space: pre-wrap;
       word-wrap: break-word;
+      display: flex;
+      flex-direction: row;
     }
     .GroupNickname {
       color: black;
