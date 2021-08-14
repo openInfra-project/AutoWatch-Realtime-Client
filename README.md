@@ -16,8 +16,8 @@ npm install
 ```
 
 ## 📽️WebRTC
+![Web App Reference Architecture (1)](https://user-images.githubusercontent.com/48875061/129440265-23c41b6a-547a-44dd-8a7e-81a245d129fa.png)
 
-![Web App Reference Architecture.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/e084512f-126f-4c00-912a-fc69fa61340b/Web_App_Reference_Architecture.png)
 
 ## **💻 Development Stack**
 
