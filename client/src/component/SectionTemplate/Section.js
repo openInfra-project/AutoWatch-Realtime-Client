@@ -144,8 +144,8 @@ function Section(props) {
                         // Eyetracking - 이상시선감지 기능
                         if (-80 > docx || docx > 1280 || -80 > docy || docy > 720 ){
                             gazeCount++;
-                            if(gazeCount%10==0){
-                                var a = gazeCount/10;
+                            if(gazeCount%25==0){
+                                var a = gazeCount/25;
 
                                 console.log("gazecount스크립트 테스트!"+a);
                                 localStorage.setItem('gazeCount',a);
