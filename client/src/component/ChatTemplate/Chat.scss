@@ -52,6 +52,7 @@ $inbox-radius: 4px;
   width:30%;
   height:70%;
   position: fixed;
+  z-index: 1000000;
   top:10%;
   right:-100%;
   @include animation;

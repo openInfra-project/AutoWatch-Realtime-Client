@@ -93,11 +93,23 @@
     }
     .Groupng-binding{
       color: #202124;
-      font-size: 10.24px;
+      font-size: 16px;
       line-height: 20px;
       padding-top: 10px;
       white-space: pre-wrap;
       word-wrap: break-word;
+    }
+    .GroupNickname {
+      color: black;
+      font-weight: 700;
+    }
+    .GroupWarning1{
+      color: #f08c00;
+      font-weight: 650;
+    }
+    .GroupWarning2{
+      color: #e03131;
+      font-weight: 650;
     }
   }
   

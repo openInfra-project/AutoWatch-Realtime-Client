@@ -21,7 +21,19 @@ function RenderGroup() {
                                     
                                 </div>
                                 <p className="Groupng-binding">
-                                 {`${data.nickname}님의 시선처리 경고${data.gazeOption.gaze}번 자리이탈 경고 ${data.gazeOption.bound}번 하였습니다.`}
+                                    <p className="GroupNickname">{data.nickname} </p>
+                                    님의
+                                    <p className="GroupWarning1"> 시선처리 </p> 
+                                    경고는 
+                                    <p className="GroupWarning1"> {data.gazeOption.gaze}</p>
+                                    번,
+                                    <p className="GroupWarning2"> 자리이탈 </p>
+                                    경고는
+                                    <p className="GroupWarning2"> {data.gazeOption.bound}</p>
+                                    번 입니다.
+
+
+
                                 </p>    
                         
                         </div>
