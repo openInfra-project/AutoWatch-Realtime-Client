@@ -6,9 +6,9 @@ WebRTC 통신을 위한 React 페이지입니다. 해당 realtime-client가 실�
 
 보다 원활한 접속을 위해 **Manager Server**을 통해 접속하시기 바랍니다.
 
-Manager server URL:: [https://118.67.131.138:30000](https://118.67.131.138:30000/)
+Manager server URL:: ["**https://118.67.131.138:30000"**](https://118.67.131.138:30000/)
 
-Realtime Client URL:: ["**https://cranky-bohr-e0f18a.netlify.app/"**](https://118.67.131.138:30020/)
+Realtime Client URL:: ["**https://118.67.131.138:30020/"**](https://118.67.131.138:30020/)
 
 ## Quick Start
 
