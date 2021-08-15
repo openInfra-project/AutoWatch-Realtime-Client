@@ -4,7 +4,8 @@
 
 WebRTC 통신을 위한 React 페이지입니다. 해당 realtime-client가 실행되기위해서는 realtime-server가 작동해야합니다.
 
-보다 원활한 접속을 위해 **Manager Server**을 통해 접속하시기 바랍니다.
+보다 원활한 접속을 위해 **https://118.67.131.138:30010/** 에 접속, thisisunsafe 입력 후 입장 바랍니다. 
+
 
 Manager server URL:: ["**https://118.67.131.138:30000"**](https://118.67.131.138:30000/)
 
@@ -98,7 +99,7 @@ redux
 ```
 MIT License
 
-Copyright (혜몽유식) [2021-08-15] [JunYoung Kim]
+Copyright (해몽유식) [2021-08-15] [JunYoung Kim]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
