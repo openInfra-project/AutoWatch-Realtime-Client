@@ -2,13 +2,13 @@
 
 ---
 
-webRTC 통신을 위한 React 페이지입니다. 해당 realtime-client가 실행되기위해서는 realtime-server가 작동해야합니다.
+WebRTC 통신을 위한 React 페이지입니다. 해당 realtime-client가 실행되기위해서는 realtime-server가 작동해야합니다.
 
 보다 원활한 접속을 위해 **Manager Server**을 통해 접속하시기 바랍니다.
 
-Manager server url :: [https://118.67.131.138:30000](https://118.67.131.138:30000/)
+Manager server URL:: [https://118.67.131.138:30000](https://118.67.131.138:30000/)
 
-Realtime Client url :: "[**https://cranky-bohr-e0f18a.netlify.app/](https://cranky-bohr-e0f18a.netlify.app/)"**
+Realtime Client URL:: ["**https://cranky-bohr-e0f18a.netlify.app/"**](https://118.67.131.138:30020/)
 
 ## Quick Start
 
@@ -18,6 +18,11 @@ cd client
 npm install
 npm start
 ```
+
+ * npm 환경에서 돌아가는 서비스 입니다. 실행 전 npm이 설치되어 있는지 확인해야 합니다.
+## 🎨 Preview
+https://user-images.githubusercontent.com/48875061/129474018-dce9fa5a-57ed-4b63-a775-8145f33aaae7.mp4
+ 
 ## 📽️WebRTC
 ![Web App Reference Architecture (1)](https://user-images.githubusercontent.com/48875061/129440265-23c41b6a-547a-44dd-8a7e-81a245d129fa.png)
 
@@ -32,10 +37,6 @@ npm start
 - WebRTC
 - GazeCloudAPI
 
-### ☁️Cloud
-
-- Nelify
-- CI/CD
 
 ### 🖋Features
 
