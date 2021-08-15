@@ -22,7 +22,10 @@ npm start
 
  * npm 환경에서 돌아가는 서비스 입니다. 실행 전 npm이 설치되어 있는지 확인해야 합니다.
 ## 🎨 Preview
-https://user-images.githubusercontent.com/48875061/129474018-dce9fa5a-57ed-4b63-a775-8145f33aaae7.mp4
+
+https://user-images.githubusercontent.com/48875061/129483817-85148965-608a-4e8f-9b56-9dd6c37c1900.mp4
+
+
  
 ## 📽️WebRTC
 ![Web App Reference Architecture (1)](https://user-images.githubusercontent.com/48875061/129440265-23c41b6a-547a-44dd-8a7e-81a245d129fa.png)
