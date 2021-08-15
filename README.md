@@ -81,19 +81,19 @@ RealTime-Client
 redux
 
 - 각종 상태관리
+### 🙋‍♂️Role
+ @김준영 
 
-@김준영 
+ - *전체 Layout 구축*
+ - *WebSocket token을 활용한 peer connection*
+ - *Chat 기능 구축*
+ - *부정행위 실시간 알람기능 구축*
+ - *백엔드 실시간 통신 구축*
+ - *Redux를 활용한 SettingData(Gaze,마이크,비디오 on/off) 및 UserData 상태 관리*
 
-- *전체 Layout 구축*
-- *WebSocket token을 활용한 peer connection*
-- *Chat 기능 구축*
-- *부정행위 실시간 알람기능 구축*
-- *백엔드 실시간 통신 구축*
-- *Redux를 활용한 SettingData(Gaze,마이크,비디오 on/off) 및 UserData 상태 관리*
+ @김혜원 
 
-@김혜원 
-
-- *오픈소스 GazeCouldAPI 연동*
+ - *오픈소스 GazeCouldAPI 연동*
 ### License
 ```
 MIT License
